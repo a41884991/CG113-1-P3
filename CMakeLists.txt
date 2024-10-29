@@ -17,6 +17,7 @@ add_definitions(-DPROJECT_DIR="${PROJECT_SOURCE_DIR}")
 
 add_executable(RollerCoasters
     ${SRC_DIR}MainWindow/MainWindow.cpp
+    ${SRC_DIR}ControlWindow/ControlWindow.cpp
     ${SRC_DIR}main.cpp
     ${INCLUDE_DIR}glad/src/glad.c)
 

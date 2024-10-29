@@ -10,6 +10,7 @@
 
 #include <iostream>
 
+class ControlWindow;
 class MainWindow
 {
 public:
@@ -28,4 +29,5 @@ private:
     unsigned int height;
 
     GLFWwindow *window;
+    ControlWindow* controlWindow;
 };

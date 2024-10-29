@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "../ControlWindow/ControlWindow.h"
 
 MainWindow::MainWindow(const unsigned int width, const unsigned int height)
     : width(width), height(height)
@@ -18,6 +19,9 @@ void MainWindow::Initialize()
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+
+    controlWindow = new ControlWindow(true);
+    controlWindow->Initialize(this->window);
 }
 
 void MainWindow::Show()
@@ -35,6 +39,8 @@ void MainWindow::Show()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        controlWindow->Render();
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -43,6 +49,7 @@ void MainWindow::Show()
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
+    controlWindow->~ControlWindow();
     glfwTerminate();
 }
 
