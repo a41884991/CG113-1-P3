@@ -1,9 +1,11 @@
 #include "MainWindow.h"
-#include "../ControlWindow/ControlWindow.h"
+#include "ControlWindow/ControlWindow.h"
+#include "MainView/MainView.h"
 
 MainWindow::MainWindow(const unsigned int width, const unsigned int height)
     : width(width), height(height)
 {
+    instance = this;
 }
 
 void MainWindow::Initialize()
@@ -20,8 +22,8 @@ void MainWindow::Initialize()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
-    controlWindow = new ControlWindow(true);
-    controlWindow->Initialize(this->window);
+    controlWindow = new ControlWindow(window);
+    view = new MainView();
 }
 
 void MainWindow::Show()
@@ -40,6 +42,7 @@ void MainWindow::Show()
         glClear(GL_COLOR_BUFFER_BIT);
 
         controlWindow->Render();
+        view->Render();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -59,4 +62,19 @@ void MainWindow::ProcessInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+void MainWindow::FramebufferSizeCallback(GLFWwindow *window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+    instance->SetWidth(width);
+    instance->SetHeight(height);
+}
+
+void MainWindow::SetWidth(int width) {
+    this->width = width;
+}
+
+void MainWindow::SetHeight(int height) {
+    this->height = height;
 }

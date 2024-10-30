@@ -1,17 +1,6 @@
 #include "ControlWindow.h"
 
-ControlWindow::ControlWindow(const bool showDemoWindow) : showDemoWindow(showDemoWindow)
-{
-}
-
-ControlWindow::~ControlWindow()
-{
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-}
-
-void ControlWindow::Initialize(GLFWwindow *window)
+ControlWindow::ControlWindow(GLFWwindow *window)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -21,6 +10,15 @@ void ControlWindow::Initialize(GLFWwindow *window)
     (void)io;
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
+
+    showDemoWindow = true;
+}
+
+ControlWindow::~ControlWindow()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void ControlWindow::Render()

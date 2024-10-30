@@ -1,16 +1,12 @@
 #pragma once
 
-#pragma warning(push)
-#pragma warning(disable : 4312)
-#pragma warning(disable : 4311)
-#pragma warning(pop)
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
 
 class ControlWindow;
+class MainView;
 class MainWindow
 {
 public:
@@ -21,13 +17,20 @@ public:
     void Show();
 
 private:
-    static void FramebufferSizeCallback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
+    static void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
     void ProcessInput(GLFWwindow *window);
+
+    void SetWidth(int width);
+    void SetHeight(int height);
 
 private:
     unsigned int width;
     unsigned int height;
 
     GLFWwindow *window;
-    ControlWindow* controlWindow;
+    ControlWindow *controlWindow;
+
+    MainView *view;
+
+    static MainWindow *instance;
 };

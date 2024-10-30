@@ -11,6 +11,7 @@ include_directories(${INCLUDE_DIR}glm/)
 include_directories(${INCLUDE_DIR}glad/include/)
 include_directories(${INCLUDE_DIR}GLFW/)
 include_directories(${IMGUI_DIR})
+include_directories(${SRC_DIR})
 
 add_Definitions("-D_XKEYCHECK_H")
 add_definitions(-DPROJECT_DIR="${PROJECT_SOURCE_DIR}")
@@ -18,6 +19,9 @@ add_definitions(-DPROJECT_DIR="${PROJECT_SOURCE_DIR}")
 add_executable(RollerCoasters
     ${SRC_DIR}MainWindow/MainWindow.cpp
     ${SRC_DIR}ControlWindow/ControlWindow.cpp
+    ${SRC_DIR}MainView/MainView.cpp
+    ${SRC_DIR}ShaderProgram/ShaderProgram.cpp
+    ${SRC_DIR}MainView/MainView.cpp
     ${SRC_DIR}main.cpp
     ${INCLUDE_DIR}glad/src/glad.c)
 

@@ -1,9 +1,8 @@
-
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+
 
 #include "MainWindow/MainWindow.h"
 
@@ -14,11 +13,11 @@ int main()
 {
     InitializeGLFW();
 
-    MainWindow mainWindow;
+    MainWindow* mainWindow = new MainWindow();
 
     try
     {
-        mainWindow.Initialize();
+        mainWindow->Initialize();
         InitializeGLAD();
     }
     catch (const char *message)
@@ -28,7 +27,7 @@ int main()
         return -1;
     }
 
-    mainWindow.Show();
+    mainWindow->Show();
 
     return 0;
 }
