@@ -5,7 +5,7 @@
 MainWindow::MainWindow(const unsigned int width, const unsigned int height)
     : width(width), height(height)
 {
-    instance = this;
+    // instance = this;
 }
 
 void MainWindow::Initialize()
@@ -23,7 +23,9 @@ void MainWindow::Initialize()
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
     controlWindow = new ControlWindow(window);
+    std::cout << "render1\n";
     view = new MainView();
+
 }
 
 void MainWindow::Show()
@@ -32,6 +34,7 @@ void MainWindow::Show()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+
         // input
         // -----
         ProcessInput(window);
@@ -67,14 +70,16 @@ void MainWindow::ProcessInput(GLFWwindow *window)
 void MainWindow::FramebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    instance->SetWidth(width);
-    instance->SetHeight(height);
+    // instance->SetWidth(width);
+    // instance->SetHeight(height);
 }
 
-void MainWindow::SetWidth(int width) {
+void MainWindow::SetWidth(int width)
+{
     this->width = width;
 }
 
-void MainWindow::SetHeight(int height) {
+void MainWindow::SetHeight(int height)
+{
     this->height = height;
 }

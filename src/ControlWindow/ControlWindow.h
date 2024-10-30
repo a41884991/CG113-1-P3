@@ -7,6 +7,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#pragma warning(disable:4819)
+
 class ControlWindow
 {
 public:

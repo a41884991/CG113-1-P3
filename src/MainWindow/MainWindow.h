@@ -32,5 +32,5 @@ private:
 
     MainView *view;
 
-    static MainWindow *instance;
+    // static MainWindow *instance;
 };

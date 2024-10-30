@@ -11,6 +11,8 @@ Date: 10/30/2024
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#pragma warning(disable:4819)
+
 class ShaderProgram;
 
 class MainView {

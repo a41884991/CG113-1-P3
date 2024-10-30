@@ -8,12 +8,12 @@ date: 10/30/2024
 #include "MainView.h"
 #include "ShaderProgram/ShaderProgram.h"
 
+#include <iostream>
+
 MainView::MainView()
 {
     // Constructor
-
-    program = new ShaderProgram("../Shader/Train.vs", "../Shader/Train.fs");
-
+    program = new ShaderProgram("Shader/Train.vs", "Shader/Train.fs");
     float vertices[] = {
         -0.5f, -0.5f, 0.0f, // left
         0.5f, -0.5f, 0.0f,  // right

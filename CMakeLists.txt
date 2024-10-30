@@ -6,6 +6,8 @@ set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 set(IMGUI_DIR ${INCLUDE_DIR}imgui/)
 
+set(OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release)
+
 include_directories(${INCLUDE_DIR})
 include_directories(${INCLUDE_DIR}glm/)
 include_directories(${INCLUDE_DIR}glad/include/)
@@ -43,8 +45,14 @@ add_library(ImGUI
     ${IMGUI_DIR}backends/imgui_impl_glfw.cpp
     ${IMGUI_DIR}backends/imgui_impl_opengl3.cpp)
 
+file(COPY ${CMAKE_SOURCE_DIR}/src/Shader DESTINATION ${OUTPUT_DIRECTORY})
+
 target_link_libraries(RollerCoasters
     ${LIB_DIR}glfw3.lib
     ${LIB_DIR}OpenGL32.lib)
+
+set_target_properties(RollerCoasters PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIRECTORY}
+)
 
 target_link_libraries(RollerCoasters ImGUI)
