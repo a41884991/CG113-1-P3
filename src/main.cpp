@@ -3,7 +3,6 @@
 
 #include <iostream>
 
-
 #include "MainWindow/MainWindow.h"
 
 void InitializeGLFW();
@@ -13,12 +12,14 @@ int main()
 {
     InitializeGLFW();
 
-    MainWindow* mainWindow = new MainWindow();
+    MainWindow *mainWindow = new MainWindow();
 
     try
     {
         mainWindow->Initialize();
         InitializeGLAD();
+
+        mainWindow->CreateView();
     }
     catch (const char *message)
     {

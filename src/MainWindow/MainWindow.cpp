@@ -24,8 +24,6 @@ void MainWindow::Initialize()
 
     controlWindow = new ControlWindow(window);
     std::cout << "render1\n";
-    view = new MainView();
-
 }
 
 void MainWindow::Show()
@@ -44,8 +42,8 @@ void MainWindow::Show()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        controlWindow->Render();
         view->Render();
+        controlWindow->Render();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -57,6 +55,11 @@ void MainWindow::Show()
     // ------------------------------------------------------------------
     controlWindow->~ControlWindow();
     glfwTerminate();
+}
+
+void MainWindow::CreateView()
+{
+    view = new MainView();
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

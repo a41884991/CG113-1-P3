@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(RollerCoasters)
+
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src/)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 set(IMGUI_DIR ${INCLUDE_DIR}imgui/)
+set(SHADER_DIR ${SRC_DIR}Shader/)
 
 set(OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release)
 
@@ -45,14 +47,23 @@ add_library(ImGUI
     ${IMGUI_DIR}backends/imgui_impl_glfw.cpp
     ${IMGUI_DIR}backends/imgui_impl_opengl3.cpp)
 
-file(COPY ${CMAKE_SOURCE_DIR}/src/Shader DESTINATION ${OUTPUT_DIRECTORY})
-
 target_link_libraries(RollerCoasters
     ${LIB_DIR}glfw3.lib
     ${LIB_DIR}OpenGL32.lib)
 
-set_target_properties(RollerCoasters PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIRECTORY}
+add_custom_command(
+
+    # 指令依附的目標
+    TARGET RollerCoasters
+
+    # 自訂指令的執行時機
+    POST_BUILD
+
+    # COMMAND關鍵字後為執行指令
+    COMMAND
+    ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:RollerCoasters>/Shader
+    COMMAND 
+    ${CMAKE_COMMAND} -E copy_directory ${SHADER_DIR} $<TARGET_FILE_DIR:RollerCoasters>/Shader
 )
 
 target_link_libraries(RollerCoasters ImGUI)

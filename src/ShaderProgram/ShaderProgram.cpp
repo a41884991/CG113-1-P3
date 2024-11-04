@@ -19,6 +19,7 @@ ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentS
     vertexInput.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fragmentInput.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
+    
     vertexInput.open(vertexShaderFile);
     fragmentInput.open(fragmentShaderFile);
 
