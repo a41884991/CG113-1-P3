@@ -7,6 +7,7 @@ set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 set(IMGUI_DIR ${INCLUDE_DIR}imgui/)
 set(SHADER_DIR ${SRC_DIR}Shader/)
+set(RESOURCE_DIR ${PROJECT_SOURCE_DIR}/resource/)
 
 set(OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release)
 
@@ -26,6 +27,7 @@ add_executable(RollerCoasters
     ${SRC_DIR}MainView/MainView.cpp
     ${SRC_DIR}ShaderProgram/ShaderProgram.cpp
     ${SRC_DIR}MainView/MainView.cpp
+    ${SRC_DIR}Material/Material.cpp
     ${SRC_DIR}main.cpp
     ${INCLUDE_DIR}glad/src/glad.c)
 
@@ -62,8 +64,13 @@ add_custom_command(
     # COMMAND關鍵字後為執行指令
     COMMAND
     ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:RollerCoasters>/Shader
-    COMMAND 
+    COMMAND
     ${CMAKE_COMMAND} -E copy_directory ${SHADER_DIR} $<TARGET_FILE_DIR:RollerCoasters>/Shader
+
+    COMMAND
+    ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:RollerCoasters>/resource
+    COMMAND
+    ${CMAKE_COMMAND} -E copy_directory ${RESOURCE_DIR} $<TARGET_FILE_DIR:RollerCoasters>/resource
 )
 
 target_link_libraries(RollerCoasters ImGUI)

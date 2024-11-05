@@ -48,12 +48,9 @@ ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentS
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        std::cout << "vertex error\n";
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
         throw(infoLog);
     }
-
-    std::cout << "vertex complete\n";
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragmentCode, NULL);
@@ -65,8 +62,6 @@ ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentS
         throw(infoLog);
     }
 
-    std::cout << "fragment complete\n";
-
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
@@ -77,8 +72,6 @@ ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentS
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
         throw(infoLog);
     }
-
-    std::cout << "program complete\n";
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);

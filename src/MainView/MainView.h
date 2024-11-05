@@ -14,6 +14,7 @@ Date: 10/30/2024
 #pragma warning(disable:4819)
 
 class ShaderProgram;
+class Material;
 
 class MainView {
 public:
@@ -26,6 +27,8 @@ private:
     ShaderProgram* program;
 
     GLuint VAO, VBO;
+
+    Material* material;
 };
 
 #endif // MAINVIEW_H
