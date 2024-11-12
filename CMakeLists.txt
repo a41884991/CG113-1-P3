@@ -28,6 +28,8 @@ add_executable(RollerCoasters
     ${SRC_DIR}ShaderProgram/ShaderProgram.cpp
     ${SRC_DIR}MainView/MainView.cpp
     ${SRC_DIR}Material/Material.cpp
+    ${SRC_DIR}Camera/Camera.cpp
+    ${SRC_DIR}ControlPoint/ControlPoint.cpp
     ${SRC_DIR}main.cpp
     ${INCLUDE_DIR}glad/src/glad.c)
 

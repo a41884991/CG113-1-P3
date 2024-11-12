@@ -10,11 +10,14 @@ Date: 10/30/2024
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 
 #pragma warning(disable:4819)
 
 class ShaderProgram;
 class Material;
+class Camera;
+class ControlPoint;
 
 class MainView {
 public:
@@ -29,6 +32,10 @@ private:
     GLuint VAO, VBO;
 
     Material* material;
+
+    Camera* camera;
+
+    ControlPoint* point;
 };
 
 #endif // MAINVIEW_H

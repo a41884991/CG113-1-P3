@@ -19,7 +19,6 @@ ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentS
     vertexInput.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fragmentInput.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-    
     vertexInput.open(vertexShaderFile);
     fragmentInput.open(fragmentShaderFile);
 
@@ -85,4 +84,28 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::Use()
 {
     glUseProgram(ID);
+}
+
+void ShaderProgram::SetMat4(const char *name, glm::mat4 &matrix) const
+{
+    GLuint uniformLocation = glGetUniformLocation(this->ID, name);
+    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void ShaderProgram::SetInt(const char *name, int value) const
+{
+    GLuint uniformLocation = glGetUniformLocation(this->ID, name);
+    glUniform1i(uniformLocation, value);
+}
+
+void ShaderProgram::SetFloat(const char *name, float value) const
+{
+    GLuint uniformLocation = glGetUniformLocation(this->ID, name);
+    glUniform1f(uniformLocation, value);
+}
+
+void ShaderProgram::SetVec3(const char *name, glm::vec3 vec) const
+{
+    GLuint uniformLocation = glGetUniformLocation(this->ID, name);
+    glUniform3fv(uniformLocation, 1, glm::value_ptr(vec));
 }

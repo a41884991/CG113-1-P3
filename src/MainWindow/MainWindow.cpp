@@ -23,7 +23,6 @@ void MainWindow::Initialize()
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
     controlWindow = new ControlWindow(window);
-    std::cout << "render1\n";
 }
 
 void MainWindow::Show()
@@ -40,7 +39,7 @@ void MainWindow::Show()
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         view->Render();
         controlWindow->Render();
@@ -60,6 +59,7 @@ void MainWindow::Show()
 void MainWindow::CreateView()
 {
     view = new MainView();
+    glEnable(GL_DEPTH_TEST);
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -73,8 +73,6 @@ void MainWindow::ProcessInput(GLFWwindow *window)
 void MainWindow::FramebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    // instance->SetWidth(width);
-    // instance->SetHeight(height);
 }
 
 void MainWindow::SetWidth(int width)

@@ -1,0 +1,57 @@
+/* --- Camera.h --- */
+
+/* ------------------------------------------
+Author: User
+Date: 11/6/2024
+------------------------------------------ */
+
+#ifndef CAMERA_H
+#define CAMERA_H
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+enum CameraMovement
+{
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
+
+enum CameraStatus
+{
+    WORLD,
+    TRAIN,
+    TOP,
+};
+
+class Camera
+{
+public:
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
+    ~Camera();
+
+    glm::mat4 GetViewMatrix();
+
+private:
+    void UpdateCameraVectors();
+
+private:
+    CameraStatus status;
+    glm::vec3 position;
+    glm::vec3 front;
+    glm::vec3 right;
+    glm::vec3 up;
+    glm::vec3 worldUp;
+
+    float yaw;
+    float pitch;
+    float movementSpeed;
+    float mouseSensitivity;
+};
+
+#endif // CAMERA_H
