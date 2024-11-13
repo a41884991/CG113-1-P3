@@ -22,12 +22,9 @@ private:
     static void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
     void ProcessInput(GLFWwindow *window);
 
-    void SetWidth(int width);
-    void SetHeight(int height);
-
 private:
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
 
     GLFWwindow *window;
     ControlWindow *controlWindow;

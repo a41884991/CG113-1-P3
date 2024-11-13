@@ -12,26 +12,22 @@ date: 10/30/2024
 #include "ControlPoint/ControlPoint.h"
 
 #include <iostream>
+#include <vector>
 
 MainView::MainView()
 {
     // Constructor
     program = new ShaderProgram("Shader/Train.vs", "Shader/Train.fs");
-    float vertices[] = {
-        //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // 右上
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // 右下
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // 左下
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // 左上
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // 右上
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // 左下
-    };
 
     material = new Material("resource/container.jpg");
 
     camera = new Camera();
 
     point = new ControlPoint(glm::vec3(0.0f, 0.0f, 0.0f), 0);
+    CreateFloor();
+
+    viewMat = glm::mat4(1.0f);
+    projMat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 }
 
 MainView::~MainView()
@@ -41,21 +37,109 @@ MainView::~MainView()
 
 void MainView::Render()
 {
+    // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
+    viewMat = camera->GetViewMatrix();
+    projMat = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f);
+
+    DrawFloor();
+
     program->Use();
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    glm::mat4 view = glm::mat4(1.0f);
-    // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
-    view = camera->GetViewMatrix();
-
-    // glm::mat4 projection = glm::mat4(1.0f);
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
     // program->SetMat4("model", model);
-    program->SetMat4("view", view);
-    program->SetMat4("projection", projection);
+    program->SetMat4("view", viewMat);
+    program->SetMat4("projection", projMat);
 
     point->Render(program);
+}
+
+void MainView::SetViewPort(int &width, int &height)
+{
+    m_width = width;
+    m_height = height;
+}
+
+void MainView::CreateFloor(float size, int nSquares)
+{
+    floor.program = new ShaderProgram("Shader/Floor.vs", "Shader/Floor.fs");
+    floor.modelMat = glm::mat4(1.0f);
+
+    std::vector<float> floorColor1 = {.7f, .7f, .7f}; // Light color
+    std::vector<float> floorColor2 = {.3f, .3f, .3f}; // Dark color
+
+    float blockSize = size / (float)nSquares;
+    float xPos = -size / 2, yPos = -size / 2;
+
+    std::vector<float> vertices;
+    int colorSelector = 0;
+
+    for (int x = 0; x < nSquares; ++x)
+    {
+        yPos = -size / 2;
+        for (int y = 0; y < nSquares; ++y)
+        {
+            auto &currentColor = (colorSelector % 2 == 0) ? floorColor1 : floorColor2;
+
+            std::vector<float> point0 = {xPos, 0, yPos};
+            std::vector<float> point1 = {xPos, 0, yPos + blockSize};
+            std::vector<float> point2 = {xPos + blockSize, 0, yPos + blockSize};
+            std::vector<float> point3 = {xPos + blockSize, 0, yPos};
+
+            std::cout << "point0 " << point0[0] << " " << point0[2] << std::endl;
+            std::cout << colorSelector << std::endl;
+
+            std::vector<float> newVertices;
+
+            newVertices.insert(newVertices.end(), point0.begin(), point0.end());
+            newVertices.insert(newVertices.end(), currentColor.begin(), currentColor.end());
+            newVertices.insert(newVertices.end(), point1.begin(), point1.end());
+            newVertices.insert(newVertices.end(), currentColor.begin(), currentColor.end());
+            newVertices.insert(newVertices.end(), point2.begin(), point2.end());
+            newVertices.insert(newVertices.end(), currentColor.begin(), currentColor.end());
+
+            newVertices.insert(newVertices.end(), point0.begin(), point0.end());
+            newVertices.insert(newVertices.end(), currentColor.begin(), currentColor.end());
+            newVertices.insert(newVertices.end(), point2.begin(), point2.end());
+            newVertices.insert(newVertices.end(), currentColor.begin(), currentColor.end());
+            newVertices.insert(newVertices.end(), point3.begin(), point3.end());
+            newVertices.insert(newVertices.end(), currentColor.begin(), currentColor.end());
+
+            vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
+
+            colorSelector++;
+            yPos += blockSize;
+        }
+
+        xPos += blockSize;
+        colorSelector++;
+    }
+
+    floor.size = vertices.size() / 6;
+
+    glGenVertexArrays(1, &floor.VAO);
+    glGenBuffers(1, &floor.VBO);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(floor.VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, floor.VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+}
+
+void MainView::DrawFloor()
+{
+    floor.program->Use();
+
+    floor.program->SetMat4("view", viewMat);
+    floor.program->SetMat4("projection", projMat);
+    floor.program->SetMat4("model", floor.modelMat);
+
+    glBindVertexArray(floor.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, floor.size);
 }

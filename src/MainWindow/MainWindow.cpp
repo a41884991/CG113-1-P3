@@ -36,6 +36,9 @@ void MainWindow::Show()
         // -----
         ProcessInput(window);
 
+        glfwGetWindowSize(window, &width, &height);
+        view->SetViewPort(width, height);
+
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -73,14 +76,4 @@ void MainWindow::ProcessInput(GLFWwindow *window)
 void MainWindow::FramebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
-}
-
-void MainWindow::SetWidth(int width)
-{
-    this->width = width;
-}
-
-void MainWindow::SetHeight(int height)
-{
-    this->height = height;
 }
