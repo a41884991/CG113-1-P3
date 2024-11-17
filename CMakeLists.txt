@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(RollerCoasters)
 
+
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src/)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
@@ -74,5 +75,10 @@ add_custom_command(
     COMMAND
     ${CMAKE_COMMAND} -E copy_directory ${RESOURCE_DIR} $<TARGET_FILE_DIR:RollerCoasters>/resource
 )
+
+if(MSVC)
+    set_property(TARGET RollerCoasters APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
+endif()
+
 
 target_link_libraries(RollerCoasters ImGUI)
