@@ -50,6 +50,21 @@ void ControlPoint::Render(ShaderProgram *program)
     glDrawArrays(GL_TRIANGLES, 0, 42);
 }
 
+void ControlPoint::setIndex(const int &newIndex)
+{
+    index = newIndex;
+}
+
+const int &ControlPoint::getIndex() const
+{
+    return index;
+}
+
+void ControlPoint::setSelectedIndex(const int &newIndex)
+{
+    selectedIndex = newIndex;
+}
+
 void ControlPoint::Initialize()
 {
     float vertices[] = {

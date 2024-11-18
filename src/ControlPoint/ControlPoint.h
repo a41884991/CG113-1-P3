@@ -16,7 +16,6 @@ Date: 11/11/2024
 
 class ShaderProgram;
 
-
 class ControlPoint
 {
 public:
@@ -27,16 +26,19 @@ public:
 
     void Render(ShaderProgram *program);
 
+    void setIndex(const int &newIndex);
+    const int &getIndex() const;
+
+    void setSelectedIndex(const int &newIndex);
+
 private:
     glm::mat4 CreateModelMatrix();
 
     void Initialize();
 
-public:
+private:
     int index;
     static int selectedIndex;
-
-private:
     static bool isInitalized;
     static GLuint VAO;
     static GLuint VBO;
@@ -44,6 +46,5 @@ private:
     glm::vec3 position;
     glm::vec3 rotation;
 };
-
 
 #endif // CONTROLPOINT_H

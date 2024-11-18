@@ -14,19 +14,14 @@ Date: 11/6/2024
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "DataStructure.h"
+
 enum CameraMovement
 {
     FORWARD,
     BACKWARD,
     LEFT,
     RIGHT
-};
-
-enum CameraStatus
-{
-    WORLD,
-    TRAIN,
-    TOP,
 };
 
 class Camera

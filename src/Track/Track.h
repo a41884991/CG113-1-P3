@@ -9,20 +9,29 @@ Date: 11/19/2024
 #define TRACK_H
 
 #include <vector>
+#include "DataStructure.h"
 
 class ControlPoint;
 class ShaderProgram;
 
-class Track {
+class Track
+{
 public:
     Track();
     ~Track();
 
-    void Render(ShaderProgram* program);
+    void Render(ShaderProgram *program);
+
+    void setTrackMode(const TrackMode &newTrackMode);
+
+private:
+    void updateTrack();
+
+    void createLinearTrack();
 
 private:
     std::vector<ControlPoint> m_points;
-    
+    TrackMode trackMode;
 };
 
 #endif // TRACK_H
