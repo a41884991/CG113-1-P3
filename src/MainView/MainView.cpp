@@ -58,6 +58,64 @@ void MainView::SetViewPort(int &width, int &height)
     m_height = height;
 }
 
+void MainView::OnMouse(GLFWwindow *window, int button, int action)
+{
+    mouseMode = -1;
+
+    double xPos, yPos;
+    glfwGetCursorPos(window, &xPos, &yPos);
+
+    switch (button)
+    {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        mouseMode = (action == GLFW_PRESS) ? 0 : -1;
+        break;
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        mouseMode = (action == GLFW_PRESS) ? 1 : -1;
+        break;
+    default:
+        break;
+    }
+
+    HandleMouseEvent(mouseMode, xPos, yPos);
+}
+
+void MainView::OnCursorPos(double xPos, double yPos)
+{
+    HandleMouseEvent(mouseMode, xPos, yPos);
+}
+
+void MainView::HandleMouseEvent(int mode, double xPos, double yPos)
+{
+    static bool firstMouse = true;
+
+    static double lastX = 0, lastY = 0;
+
+    if (firstMouse)
+    {
+        lastX = xPos;
+        lastY = yPos;
+        firstMouse = false;
+    }
+
+    double xOffset = xPos - lastX;
+    double yOffset = lastY - yPos;
+
+    switch (mode)
+    {
+    case 0: // select point
+        break;
+    case 1: // move camera
+        camera->ProcessMouseMovement(xOffset, yOffset);
+        break;
+    default:
+        break;
+    }
+
+    lastX = xPos;
+    lastY = yPos;
+}
+
 void MainView::CreateFloor(float size, int nSquares)
 {
     floor.program = new ShaderProgram("Shader/Floor.vs", "Shader/Floor.fs");

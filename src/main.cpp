@@ -20,6 +20,7 @@ int main()
         InitializeGLAD();
 
         mainWindow->CreateView();
+        mainWindow->BindCallBack();
     }
     catch (const char *message)
     {

@@ -28,7 +28,17 @@ public:
 
     void Render();
 
-    void SetViewPort(int& width, int& height);
+    void SetViewPort(int &width, int &height);
+
+    void OnMouse(GLFWwindow *window, int button, int action);
+
+    void OnCursorPos(double xPos, double yPos);
+
+    void HandleMouseEvent(int mode, double xPos, double yPos);
+
+private:
+    void CreateFloor(float size = 8, int nSquares = 10);
+    void DrawFloor();
 
 private:
     struct Floor
@@ -38,7 +48,7 @@ private:
         ShaderProgram *program;
         glm::mat4 modelMat;
     };
-    
+
     ShaderProgram *program;
 
     Material *material;
@@ -54,8 +64,7 @@ private:
 
     int m_width, m_height;
 
-    void CreateFloor(float size = 8, int nSquares = 10);
-    void DrawFloor();
+    int mouseMode;
 };
 
 #endif // MAINVIEW_H

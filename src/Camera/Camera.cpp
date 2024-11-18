@@ -36,6 +36,24 @@ glm::mat4 Camera::GetViewMatrix()
     return glm::lookAt(position, position + front, up);
 }
 
+void Camera::ProcessMouseMovement(double xOffset, double yOffset)
+{
+    xOffset *= mouseSensitivity;
+    yOffset *= mouseSensitivity;
+
+    yaw += (float)xOffset;
+    pitch += (float)yOffset;
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    // update Front, Right and Up Vectors using the updated Euler angles
+    UpdateCameraVectors();
+}
+
 void Camera::UpdateCameraVectors()
 {
     glm::vec3 newFront;

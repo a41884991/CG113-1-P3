@@ -37,6 +37,8 @@ public:
 
     glm::mat4 GetViewMatrix();
 
+    void ProcessMouseMovement(double xOffset, double yOffset);
+
 private:
     void UpdateCameraVectors();
 
