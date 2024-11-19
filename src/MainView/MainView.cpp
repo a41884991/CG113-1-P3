@@ -11,6 +11,10 @@ date: 10/30/2024
 #include "Camera/Camera.h"
 #include "ControlPoint/ControlPoint.h"
 
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
 #include <iostream>
 #include <vector>
 
@@ -28,6 +32,8 @@ MainView::MainView()
 
     viewMat = glm::mat4(1.0f);
     projMat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    mouseMode = -1;
 }
 
 MainView::~MainView()
@@ -40,6 +46,9 @@ void MainView::Render()
     // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
     viewMat = camera->GetViewMatrix();
     projMat = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f);
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     DrawFloor();
 
@@ -62,6 +71,10 @@ void MainView::OnMouse(GLFWwindow *window, int button, int action)
 {
     mouseMode = -1;
 
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+        return;
+
     double xPos, yPos;
     glfwGetCursorPos(window, &xPos, &yPos);
 
@@ -82,6 +95,9 @@ void MainView::OnMouse(GLFWwindow *window, int button, int action)
 
 void MainView::OnCursorPos(double xPos, double yPos)
 {
+    if (mouseMode == -1)
+        return;
+
     HandleMouseEvent(mouseMode, xPos, yPos);
 }
 
@@ -109,6 +125,7 @@ void MainView::HandleMouseEvent(int mode, double xPos, double yPos)
         camera->ProcessMouseMovement(xOffset, yOffset);
         break;
     default:
+        firstMouse = true;
         break;
     }
 
@@ -141,9 +158,6 @@ void MainView::CreateFloor(float size, int nSquares)
             std::vector<float> point1 = {xPos, 0, yPos + blockSize};
             std::vector<float> point2 = {xPos + blockSize, 0, yPos + blockSize};
             std::vector<float> point3 = {xPos + blockSize, 0, yPos};
-
-            std::cout << "point0 " << point0[0] << " " << point0[2] << std::endl;
-            std::cout << colorSelector << std::endl;
 
             std::vector<float> newVertices;
 

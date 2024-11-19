@@ -24,6 +24,8 @@ void MainWindow::Initialize()
     glfwMakeContextCurrent(window);
     // glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
+    this->BindCallBack();
+
     controlWindow = new ControlWindow(window);
 }
 
@@ -40,11 +42,23 @@ void MainWindow::Show()
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        controlWindow->Render();
+
+
 
         view->Render();
-        controlWindow->Render();
+
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        ImGuiIO &io = ImGui::GetIO();
+        (void)io;
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow *backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -66,7 +80,6 @@ void MainWindow::CreateView()
 
 void MainWindow::BindCallBack()
 {
-
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(
         window,

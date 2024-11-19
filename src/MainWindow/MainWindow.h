@@ -18,10 +18,9 @@ public:
 
     void CreateView();
 
-    void BindCallBack();
-
 private:
     void ProcessInput(GLFWwindow *window);
+    void BindCallBack();
 
 private:
     int width;
