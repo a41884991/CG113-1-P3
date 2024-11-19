@@ -105,7 +105,7 @@ void Track::createTrackObject()
 
         glGenVertexArrays(1, &newTrackObj.VAO);
         glGenBuffers(1, &newTrackObj.VBO);
-        glBindVertexArray(newTrackObj);
+        glBindVertexArray(newTrackObj.VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, newTrackObj.VBO);
         glBufferData(GL_ARRAY_BUFFER, newVertices.size() * sizeof(float), newVertices.data(), GL_DYNAMIC_DRAW);

@@ -70,15 +70,18 @@ void ControlPoint::setPosition(const glm::vec3 &newPosition)
     position = newPosition;
 }
 
-const glm::vec3 &ControlPoint::getPosition() const {
+const glm::vec3 &ControlPoint::getPosition() const
+{
     return position;
 }
 
-void ControlPoint::setRotation(const glm::vec3 &newRotation) {
+void ControlPoint::setRotation(const glm::vec3 &newRotation)
+{
     rotation = newRotation;
 }
 
-void ControlPoint::setRotation(const glm::vec3 &newRotation) {
+const glm::vec3 &ControlPoint::getRotation() const
+{
     return rotation;
 }
 
