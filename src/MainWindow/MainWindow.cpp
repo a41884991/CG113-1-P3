@@ -44,8 +44,6 @@ void MainWindow::Show()
         // ------
         controlWindow->Render();
 
-
-
         view->Render();
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -85,6 +83,7 @@ void MainWindow::BindCallBack()
         window,
         [](GLFWwindow *window, int w, int h)
         {
+            glViewport(0, 0, w, h);
             auto mainWindow = static_cast<MainWindow *>(glfwGetWindowUserPointer(window));
             mainWindow->view->SetViewPort(w, h);
         });

@@ -19,6 +19,7 @@ class ShaderProgram;
 class Material;
 class Camera;
 class ControlPoint;
+class Track;
 
 class MainView
 {
@@ -28,7 +29,7 @@ public:
 
     void Render();
 
-    void SetViewPort(int &width, int &height);
+    void SetViewPort(int width, int height);
 
     void OnMouse(GLFWwindow *window, int button, int action);
 
@@ -55,7 +56,7 @@ private:
 
     Camera *camera;
 
-    ControlPoint *point;
+    Track *track;
 
     glm::mat4 projMat;
     glm::mat4 viewMat;

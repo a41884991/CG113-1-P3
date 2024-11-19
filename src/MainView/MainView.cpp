@@ -10,6 +10,7 @@ date: 10/30/2024
 #include "Material/Material.h"
 #include "Camera/Camera.h"
 #include "ControlPoint/ControlPoint.h"
+#include "Track/Track.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -27,11 +28,14 @@ MainView::MainView()
 
     camera = new Camera();
 
-    point = new ControlPoint(glm::vec3(0.0f, 0.0f, 0.0f), 0);
+    track = new Track();
     CreateFloor();
 
     viewMat = glm::mat4(1.0f);
     projMat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    m_width = 800;
+    m_height = 600;
 
     mouseMode = -1;
 }
@@ -45,7 +49,6 @@ void MainView::Render()
 {
     // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
     viewMat = camera->GetViewMatrix();
-    projMat = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f);
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -58,13 +61,17 @@ void MainView::Render()
     program->SetMat4("view", viewMat);
     program->SetMat4("projection", projMat);
 
-    point->Render(program);
+    track->Render(program);
 }
 
-void MainView::SetViewPort(int &width, int &height)
+void MainView::SetViewPort(int width, int height)
 {
     m_width = width;
     m_height = height;
+
+    float aspect = (float)m_width / (float)m_height;
+    std::cout << aspect << std::endl;
+    projMat = glm::perspective(glm::radians(80.0f), aspect, 0.1f, 100.0f);
 }
 
 void MainView::OnMouse(GLFWwindow *window, int button, int action)
