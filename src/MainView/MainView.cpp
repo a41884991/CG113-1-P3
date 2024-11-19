@@ -49,7 +49,6 @@ void MainView::Render()
 {
     // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
     viewMat = camera->GetViewMatrix();
-    projMat = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f);
 
     DrawFloor();
 
