@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 project(RollerCoasters)
 
@@ -21,13 +21,16 @@ include_directories(${SRC_DIR})
 
 add_Definitions("-D_XKEYCHECK_H")
 add_definitions(-DPROJECT_DIR="${PROJECT_SOURCE_DIR}")
+# set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 add_executable(RollerCoasters
     ${SRC_DIR}MainWindow/MainWindow.cpp
     ${SRC_DIR}ControlWindow/ControlWindow.cpp
     ${SRC_DIR}MainView/MainView.cpp
     ${SRC_DIR}ShaderProgram/ShaderProgram.cpp
-    ${SRC_DIR}MainView/MainView.cpp
     ${SRC_DIR}Material/Material.cpp
     ${SRC_DIR}Camera/Camera.cpp
     ${SRC_DIR}ControlPoint/ControlPoint.cpp
@@ -76,10 +79,5 @@ add_custom_command(
     COMMAND
     ${CMAKE_COMMAND} -E copy_directory ${RESOURCE_DIR} $<TARGET_FILE_DIR:RollerCoasters>/resource
 )
-
-if(MSVC)
-    set_property(TARGET RollerCoasters APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
-endif()
-
 
 target_link_libraries(RollerCoasters ImGUI)
