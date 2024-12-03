@@ -27,8 +27,8 @@ public:
 
 private:
     void updateTrack();
-
     void createLinearTrack();
+    void createTrackObject();
 
 private:
     struct TrackNode{
@@ -36,7 +36,14 @@ private:
         glm::vec3 rotation;
     };
 
+    struct TrackObject{
+        GLuint VAO;
+        GLuint VBO;
+        glm::mat4 model;
+    };
+
     std::vector<TrackNode> m_nodes;
+    std::vector<TrackObject> m_trackObjects;
     std::vector<ControlPoint> m_controlPoints;
     TrackMode trackMode;
 };

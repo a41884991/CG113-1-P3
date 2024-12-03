@@ -86,3 +86,33 @@ void Track::createLinearTrack()
         startPoint = point;
     }
 }
+
+void Track::createTrackObject()
+{
+    m_trackObjects.clear();
+    TrackNode startNode = *m_nodes.end();
+    TrackNode endNode;
+
+    for (auto &node : m_nodes)
+    {
+        endNode = node;
+
+        TrackObject newTrackObj;
+
+        std::vector<float> newVertices = {
+            startNode.position.x, startNode.position.y, startNode.position.z,
+            endNode.position.x, endNode.position.y, endNode.position.z};
+
+        glGenVertexArrays(1, &newTrackObj.VAO);
+        glGenBuffers(1, &newTrackObj.VBO);
+        glBindVertexArray(newTrackObj);
+
+        glBindBuffer(GL_ARRAY_BUFFER, newTrackObj.VBO);
+        glBufferData(GL_ARRAY_BUFFER, newVertices.size() * sizeof(float), newVertices.data(), GL_DYNAMIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(0);
+
+        m_trackObjects.push_back(newTrackObj);
+    }
+}
