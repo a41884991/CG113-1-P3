@@ -8,6 +8,7 @@ Date: 11/19/2024
 #ifndef TRACK_H
 #define TRACK_H
 
+#include <glm.hpp>
 #include <vector>
 #include "DataStructure.h"
 
@@ -30,7 +31,13 @@ private:
     void createLinearTrack();
 
 private:
-    std::vector<ControlPoint> m_points;
+    struct TrackNode{
+        glm::vec3 position;
+        glm::vec3 rotation;
+    };
+
+    std::vector<TrackNode> m_nodes;
+    std::vector<ControlPoint> m_controlPoints;
     TrackMode trackMode;
 };
 

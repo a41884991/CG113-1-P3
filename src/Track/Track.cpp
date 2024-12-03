@@ -9,13 +9,15 @@ date: 11/19/2024
 #include "ControlPoint/ControlPoint.h"
 #include "ShaderProgram/ShaderProgram.h"
 
+#define NODES_PER_LINE 10
+
 Track::Track()
 {
     // Constructor
-    m_points.push_back(ControlPoint(glm::vec3(0.0, 2.0, 2.0), 0));
-    m_points.push_back(ControlPoint(glm::vec3(2.0, 2.0, 0.0), 1));
-    m_points.push_back(ControlPoint(glm::vec3(0.0, 2.0, -2.0), 2));
-    m_points.push_back(ControlPoint(glm::vec3(-2.0, 2.0, 0.0), 3));
+    m_controlPoints.push_back(ControlPoint(glm::vec3(0.0, 2.0, 2.0), 0));
+    m_controlPoints.push_back(ControlPoint(glm::vec3(2.0, 2.0, 0.0), 1));
+    m_controlPoints.push_back(ControlPoint(glm::vec3(0.0, 2.0, -2.0), 2));
+    m_controlPoints.push_back(ControlPoint(glm::vec3(-2.0, 2.0, 0.0), 3));
 
     trackMode = TrackMode::LINEAR;
 }
@@ -27,7 +29,7 @@ Track::~Track()
 
 void Track::Render(ShaderProgram *program)
 {
-    for (auto &point : m_points)
+    for (auto &point : m_controlPoints)
     {
         point.Render(program);
     }
@@ -53,11 +55,34 @@ void Track::updateTrack()
 
 void Track::createLinearTrack()
 {
-    ControlPoint startPoint = *m_points.end();
+    m_nodes.clear();
+
+    ControlPoint startPoint = *m_controlPoints.end();
     ControlPoint endPoint;
 
-    for (auto &point : m_points)
+    const float PERCENT = 1.0f / NODES_PER_LINE;
+
+    for (auto &point : m_controlPoints)
     {
         endPoint = point;
+
+        auto p1_pos = startPoint.getPosition();
+        auto p2_pos = endPoint.getPosition();
+        auto p1_rot = startPoint.getRotation();
+        auto p2_rot = endPoint.getRotation();
+
+        for (int i = 0; i < NODES_PER_LINE; ++i)
+        {
+            TrackNode currentNode;
+
+            float t = i * PERCENT;
+
+            currentNode.position = (1 - t) * p1_pos + t * p2_pos;
+            currentNode.rotation = (1 - t) * p1_rot + t * p2_rot;
+
+            m_nodes.push_back(currentNode);
+        }
+
+        startPoint = point;
     }
 }

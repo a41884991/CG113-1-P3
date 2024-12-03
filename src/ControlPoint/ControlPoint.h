@@ -31,6 +31,12 @@ public:
 
     void setSelectedIndex(const int &newIndex);
 
+    void setPosition(const glm::vec3 &newPosition);
+    const glm::vec3 &getPosition() const;
+
+    void setRotation(const glm::vec3 &newRotation);
+    const glm::vec3 &getRotation() const;
+
 private:
     glm::mat4 CreateModelMatrix();
 
