@@ -26,6 +26,9 @@ private:
     int width;
     int height;
 
+    float deltaTime = 0.0f; // time between current frame and last frame
+    float lastFrame = 0.0f;
+
     GLFWwindow *window;
     ControlWindow *controlWindow;
 

@@ -7,6 +7,7 @@ date: 11/11/2024
 
 #include "ControlPoint.h"
 #include "ShaderProgram/ShaderProgram.h"
+#include <iostream>
 
 int ControlPoint::selectedIndex = -1;
 bool ControlPoint::isInitalized = false;
@@ -48,6 +49,7 @@ void ControlPoint::Render(ShaderProgram *program)
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 42);
+    glBindVertexArray(0);
 }
 
 void ControlPoint::setIndex(const int &newIndex)

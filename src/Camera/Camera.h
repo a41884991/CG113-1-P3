@@ -16,14 +16,6 @@ Date: 11/6/2024
 
 #include "DataStructure.h"
 
-enum CameraMovement
-{
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT
-};
-
 class Camera
 {
 public:
@@ -33,6 +25,8 @@ public:
     glm::mat4 GetViewMatrix();
 
     void ProcessMouseMovement(double xOffset, double yOffset);
+
+    void ProcessKeyboard(CameraMovement direction, float deltaTime);
 
 private:
     void UpdateCameraVectors();

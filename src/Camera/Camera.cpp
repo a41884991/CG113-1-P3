@@ -18,7 +18,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     this->movementSpeed = 2.5f;
     this->mouseSensitivity = 0.1f;
 
-    this->status = CameraStatus::WORLD;
+    this->status = CameraStatus::TOP;
 
     UpdateCameraVectors();
 }
@@ -31,7 +31,7 @@ Camera::~Camera()
 glm::mat4 Camera::GetViewMatrix()
 {
     if (status == CameraStatus::TOP)
-        return glm::lookAt(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        return glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
     return glm::lookAt(position, position + front, up);
 }
@@ -52,6 +52,19 @@ void Camera::ProcessMouseMovement(double xOffset, double yOffset)
 
     // update Front, Right and Up Vectors using the updated Euler angles
     UpdateCameraVectors();
+}
+
+void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
+{
+    float velocity = movementSpeed * deltaTime;
+    if (direction == CameraMovement::FORWARD)
+        position += front * velocity;
+    if (direction == CameraMovement::BACKWARD)
+        position -= front * velocity;
+    if (direction == CameraMovement::LEFT)
+        position -= right * velocity;
+    if (direction == CameraMovement::RIGHT)
+        position += right * velocity;
 }
 
 void Camera::UpdateCameraVectors()

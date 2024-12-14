@@ -24,8 +24,6 @@ MainView::MainView()
     // Constructor
     program = new ShaderProgram("Shader/Train.vs", "Shader/Train.fs");
 
-    material = new Material("resource/container.jpg");
-
     camera = new Camera();
 
     track = new Track();
@@ -103,6 +101,30 @@ void MainView::OnCursorPos(double xPos, double yPos)
         return;
 
     HandleMouseEvent(mouseMode, xPos, yPos);
+}
+
+void MainView::OnKey(int key, float deltaTime)
+{
+    CameraMovement direction;
+    switch (key)
+    {
+    case GLFW_KEY_W:
+        direction = CameraMovement::FORWARD;
+        break;
+    case GLFW_KEY_S:
+        direction = CameraMovement::BACKWARD;
+        break;
+    case GLFW_KEY_A:
+        direction = CameraMovement::LEFT;
+        break;
+    case GLFW_KEY_D:
+        direction = CameraMovement::RIGHT;
+        break;
+    default:
+        break;
+    }
+
+    camera->ProcessKeyboard(direction, deltaTime);
 }
 
 void MainView::HandleMouseEvent(int mode, double xPos, double yPos)

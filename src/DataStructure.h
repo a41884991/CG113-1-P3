@@ -13,3 +13,11 @@ enum class CameraStatus
     TRAIN,
     TOP,
 };
+
+enum class CameraMovement
+{
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT,
+};

@@ -30,11 +30,9 @@ public:
     void Render();
 
     void SetViewPort(int width, int height);
-
     void OnMouse(GLFWwindow *window, int button, int action);
-
     void OnCursorPos(double xPos, double yPos);
-
+    void OnKey(int key, float deltaTime);
     void HandleMouseEvent(int mode, double xPos, double yPos);
 
 private:
