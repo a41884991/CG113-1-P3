@@ -58,7 +58,20 @@ void Track::Render(ShaderProgram *program)
 
 void Track::setTrackMode(const TrackMode &newTrackMode)
 {
+    if (trackMode == newTrackMode)
+        return;
+
     trackMode = newTrackMode;
+    updateTrack();
+}
+
+void Track::setNewTension(const float &tension)
+{
+    if (m_tension == tension)
+        return;
+
+    m_tension = tension;
+    updateTrack();
 }
 
 void Track::createNewPoint()
@@ -238,16 +251,22 @@ void Track::computeBSplineBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, Tra
 void Track::computeCarinalBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, TrackNode &B3)
 {
     const float PERCENT = 1.0f / NODES_PER_LINE;
+    float s = 0.5f * (1.0f - m_tension);
     for (int i = 0; i < NODES_PER_LINE; ++i)
     {
         float t = i * PERCENT;
         float t_2 = t * t;
         float t_3 = t_2 * t;
 
+        float b0Constant = s * (-t_3 + 2 * t_2 - t);
+        float b1Constant = s * (-t_3 + t_2) + (2 * t_3 - 3 * t_2 + 1);
+        float b2Constant = s * (t_3 - 2 * t_2 + t) + (-2 * t_3 + 3 * t_2);
+        float b3Constant = s * (t_3 - t_2);
+
         TrackNode currentNode;
 
-        currentNode.position = ((-t_3 + 2 * t_2 - t) * B0.position + (3 * t_3 - 5 * t_2 + 2) * B1.position + (-3 * t_3 + 4 * t_2 + t) * B2.position + (t_3 - t_2) * B3.position) / 2.0f;
-        currentNode.rotation = ((-t_3 + 2 * t_2 - t) * B0.rotation + (3 * t_3 - 5 * t_2 + 2) * B1.rotation + (-3 * t_3 + 4 * t_2 + t) * B2.rotation + (t_3 - t_2) * B3.rotation) / 2.0f;
+        currentNode.position = b0Constant * B0.position + b1Constant * B1.position + b2Constant * B2.position + b3Constant * B3.position;
+        currentNode.rotation = b0Constant * B0.rotation + b1Constant * B1.rotation + b2Constant * B2.rotation + b3Constant * B3.rotation;
 
         m_nodes.push_back(currentNode);
     }

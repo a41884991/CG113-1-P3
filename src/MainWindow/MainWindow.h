@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "DataStructure.h"
+
 class ControlWindow;
 class MainView;
 class MainWindow
@@ -21,6 +23,7 @@ public:
 private:
     void ProcessInput(GLFWwindow *window);
     void BindCallBack();
+    void HandleControlData(const ControlData &controlData);
 
 private:
     int width;

@@ -127,6 +127,13 @@ void MainView::OnKey(int key, float deltaTime)
     camera->ProcessKeyboard(direction, deltaTime);
 }
 
+void MainView::OnControlData(const ControlData &controlData)
+{
+    camera->SetStatus(controlData.cameraStatus);
+    track->setTrackMode(controlData.trackMode);
+    track->setNewTension(controlData.cardinalTension);
+}
+
 void MainView::HandleMouseEvent(int mode, double xPos, double yPos)
 {
     static bool firstMouse = true;

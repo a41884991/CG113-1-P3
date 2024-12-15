@@ -38,6 +38,9 @@ glm::mat4 Camera::GetViewMatrix()
 
 void Camera::ProcessMouseMovement(double xOffset, double yOffset)
 {
+
+    if (status == CameraStatus::TOP || status == CameraStatus::TRAIN)
+        return;
     xOffset *= mouseSensitivity;
     yOffset *= mouseSensitivity;
 
@@ -56,6 +59,9 @@ void Camera::ProcessMouseMovement(double xOffset, double yOffset)
 
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
+    if (status == CameraStatus::TOP || status == CameraStatus::TRAIN)
+        return;
+
     float velocity = movementSpeed * deltaTime;
     if (direction == CameraMovement::FORWARD)
         position += front * velocity;

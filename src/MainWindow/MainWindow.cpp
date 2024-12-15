@@ -43,6 +43,7 @@ void MainWindow::Show()
         // input
         // -----
         ProcessInput(window);
+        HandleControlData(controlWindow->GetControlData());
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -109,6 +110,11 @@ void MainWindow::BindCallBack()
             auto mainWindow = static_cast<MainWindow *>(glfwGetWindowUserPointer(window));
             mainWindow->view->OnCursorPos(xPos, yPos);
         });
+}
+
+void MainWindow::HandleControlData(const ControlData &controlData)
+{
+    view->OnControlData(controlData);
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

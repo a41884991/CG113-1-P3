@@ -28,6 +28,7 @@ public:
     void Render(ShaderProgram *program);
 
     void setTrackMode(const TrackMode &newTrackMode);
+    void setNewTension(const float &tension);
 
     void createNewPoint();
 
@@ -49,6 +50,7 @@ private:
     std::vector<ControlPoint> m_controlPoints;
     TrackObject m_trackObject;
     TrackMode trackMode;
+    float m_tension;
 
 private:
     void updateTrack();

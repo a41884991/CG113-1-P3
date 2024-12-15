@@ -13,6 +13,8 @@ Date: 10/30/2024
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "DataStructure.h"
+
 #pragma warning(disable : 4819)
 
 class ShaderProgram;
@@ -33,6 +35,7 @@ public:
     void OnMouse(GLFWwindow *window, int button, int action);
     void OnCursorPos(double xPos, double yPos);
     void OnKey(int key, float deltaTime);
+    void OnControlData(const ControlData &controlData);
     void HandleMouseEvent(int mode, double xPos, double yPos);
 
 private:

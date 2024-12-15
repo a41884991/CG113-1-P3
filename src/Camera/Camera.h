@@ -28,6 +28,8 @@ public:
 
     void ProcessKeyboard(CameraMovement direction, float deltaTime);
 
+    void SetStatus(CameraStatus status) { this->status = status; }
+
 private:
     void UpdateCameraVectors();
 

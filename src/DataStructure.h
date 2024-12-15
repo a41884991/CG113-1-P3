@@ -21,3 +21,17 @@ enum class CameraMovement
     LEFT,
     RIGHT,
 };
+
+enum class TrainStatus
+{
+    RUN,
+    STOP,
+};
+
+struct ControlData
+{
+    CameraStatus cameraStatus;
+    TrainStatus trainStatus;
+    TrackMode trackMode;
+    float cardinalTension;
+};
