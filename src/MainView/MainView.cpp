@@ -23,6 +23,7 @@ MainView::MainView()
 {
     // Constructor
     program = new ShaderProgram("Shader/Train.vs", "Shader/Train.fs");
+    idProgram = new ShaderProgram("Shader/ID.vs", "Shader/ID.fs");
 
     camera = new Camera();
 
@@ -34,6 +35,8 @@ MainView::MainView()
 
     m_width = 800;
     m_height = 600;
+
+    createIDTexture();
 
     mouseMode = -1;
 }
@@ -55,8 +58,14 @@ void MainView::Render()
     // program->SetMat4("model", model);
     program->SetMat4("view", viewMat);
     program->SetMat4("projection", projMat);
-
     track->Render(program);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, idTexture.FBO);
+    idProgram->Use();
+    idProgram->SetMat4("view", viewMat);
+    idProgram->SetMat4("projection", projMat);
+    track->RenderID(idProgram);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void MainView::SetViewPort(int width, int height)
@@ -65,7 +74,7 @@ void MainView::SetViewPort(int width, int height)
     m_height = height;
 
     float aspect = (float)m_width / (float)m_height;
-    std::cout << aspect << std::endl;
+    createIDTexture();
     projMat = glm::perspective(glm::radians(80.0f), aspect, 0.1f, 100.0f);
 }
 
@@ -150,9 +159,15 @@ void MainView::HandleMouseEvent(int mode, double xPos, double yPos)
     double xOffset = xPos - lastX;
     double yOffset = lastY - yPos;
 
+    int id = -1;
+    glm::vec3 worldPos;
     switch (mode)
     {
     case 0: // select point
+        id = getID((int)xPos, (int)yPos);
+        track->setSelectedPointIndex(id);
+        worldPos = getWorldPos((int)xPos, (int)yPos);
+        track->setControlPointPosition(id, worldPos);
         break;
     case 1: // move camera
         camera->ProcessMouseMovement(xOffset, yOffset);
@@ -237,6 +252,37 @@ void MainView::CreateFloor(float size, int nSquares)
     glBindVertexArray(0);
 }
 
+void MainView::createIDTexture()
+{
+    static bool initialized = false;
+    glGenFramebuffers(1, &idTexture.FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, idTexture.FBO);
+
+    glGenTextures(1, &idTexture.texture);
+    glBindTexture(GL_TEXTURE_2D, idTexture.texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, m_width, m_height, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, idTexture.texture, 0);
+
+    if (initialized)
+    {
+        glDeleteRenderbuffers(1, &idTexture.depth);
+    }
+    else
+    {
+        initialized = true;
+    }
+
+    glGenRenderbuffers(1, &idTexture.depth);
+    glBindRenderbuffer(GL_RENDERBUFFER, idTexture.depth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, idTexture.depth);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void MainView::DrawFloor()
 {
     floor.program->Use();
@@ -247,4 +293,38 @@ void MainView::DrawFloor()
 
     glBindVertexArray(floor.VAO);
     glDrawArrays(GL_TRIANGLES, 0, floor.size);
+}
+
+int MainView::getID(const int mouseX, const int mouseY)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, idTexture.FBO);
+
+    GLuint id = 0;
+    int windowX = mouseX;
+    int windowY = m_height - mouseY;
+    glReadPixels(windowX, windowY, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &id);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return (id == 0) ? -1 : id - 1;
+}
+
+glm::vec3 MainView::getWorldPos(const int mouseX, const int mouseY)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, idTexture.FBO);
+
+    float depth = 0.0f;
+    int windowX = mouseX;
+    int windowY = m_height - mouseY;
+    glReadPixels(windowX, windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+
+    GLint _viewport[4];
+    glGetIntegerv(GL_VIEWPORT, _viewport);
+    glm::vec4 viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
+    glm::vec3 windowPos(windowX, windowY, depth);
+    glm::vec3 wp = glm::unProject(windowPos, viewMat, projMat, viewport);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return wp;
 }

@@ -5,5 +5,5 @@ out uint outID;
 uniform int ID;
 
 void main(void) {
-    outID = ID + 1;
+    outID = ID;
 }

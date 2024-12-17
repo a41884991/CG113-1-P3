@@ -26,10 +26,14 @@ public:
     ~Track();
 
     void Render(ShaderProgram *program);
+    void RenderID(ShaderProgram *program);
 
     void setTrackMode(const TrackMode &newTrackMode);
     void setNewTension(const float &tension);
 
+    void setSelectedPointIndex(const int &index);
+
+    void setControlPointPosition(const int &index, const glm::vec3 &position);
     void createNewPoint();
 
 private:

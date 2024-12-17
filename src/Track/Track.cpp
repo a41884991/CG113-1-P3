@@ -56,6 +56,14 @@ void Track::Render(ShaderProgram *program)
     glBindVertexArray(0);
 }
 
+void Track::RenderID(ShaderProgram *program)
+{
+    for (auto &point : m_controlPoints)
+    {
+        point.RenderID(program);
+    }
+}
+
 void Track::setTrackMode(const TrackMode &newTrackMode)
 {
     if (trackMode == newTrackMode)
@@ -71,6 +79,23 @@ void Track::setNewTension(const float &tension)
         return;
 
     m_tension = tension;
+
+    if (trackMode == TrackMode::CARDINAL_CUBIC)
+        updateTrack();
+}
+
+void Track::setSelectedPointIndex(const int &index)
+{
+    m_controlPoints[0].setSelectedIndex(index);
+}
+
+void Track::setControlPointPosition(const int &index, const glm::vec3 &position)
+{
+    if (index == -1)
+        return;
+
+    m_controlPoints[index].setPosition(position);
+
     updateTrack();
 }
 

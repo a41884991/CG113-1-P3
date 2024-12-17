@@ -73,6 +73,7 @@ void ControlWindow::Render()
             m_controlData.cameraStatus = CameraStatus::TOP;
         }
     }
+    ImGui::Text("    ");
     {
         ImGui::Text("Track Option");
         ImGui::Separator();

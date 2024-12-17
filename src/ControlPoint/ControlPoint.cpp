@@ -52,6 +52,16 @@ void ControlPoint::Render(ShaderProgram *program)
     glBindVertexArray(0);
 }
 
+void ControlPoint::RenderID(ShaderProgram *program)
+{
+    program->SetMat4("model", this->CreateModelMatrix());
+    program->SetInt("ID", index + 1);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 42);
+    glBindVertexArray(0);
+}
+
 void ControlPoint::setIndex(const int &newIndex)
 {
     index = newIndex;
@@ -148,7 +158,7 @@ void ControlPoint::Initialize()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);

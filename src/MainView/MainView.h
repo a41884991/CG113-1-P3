@@ -40,7 +40,10 @@ public:
 
 private:
     void CreateFloor(float size = 8, int nSquares = 10);
+    void createIDTexture();
     void DrawFloor();
+    int getID(const int mouseX, const int mouseY);
+    glm::vec3 getWorldPos(const int mouseX, const int mouseY);
 
 private:
     struct Floor
@@ -51,9 +54,15 @@ private:
         glm::mat4 modelMat;
     };
 
-    ShaderProgram *program;
+    struct IDTexture
+    {
+        GLuint texture;
+        GLuint FBO;
+        GLuint depth;
+    };
 
-    Material *material;
+    ShaderProgram *program;
+    ShaderProgram *idProgram;
 
     Camera *camera;
 
@@ -63,6 +72,7 @@ private:
     glm::mat4 viewMat;
 
     Floor floor;
+    IDTexture idTexture;
 
     int m_width, m_height;
 

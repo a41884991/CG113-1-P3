@@ -25,6 +25,7 @@ public:
     ~ControlPoint();
 
     void Render(ShaderProgram *program);
+    void RenderID(ShaderProgram *program);
 
     void setIndex(const int &newIndex);
     const int &getIndex() const;
