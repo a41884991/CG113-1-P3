@@ -37,6 +37,10 @@ public:
 
     void setControlPointPosition(const int &index, const glm::vec3 &position);
     void createNewPoint();
+    const glm::mat4 getTrainMatrix(float time);
+    const glm::vec3 &getTrainPosition() const { return current.position; }
+    const glm::vec3 &getTrainOrientation() const { return current.orientation; }
+    const glm::vec3 &getTrainUp() const { return currentUp; }
 
 private:
     struct TrackNode
@@ -57,7 +61,12 @@ private:
     TrackObject m_trackObject;
     TrackMode trackMode;
     Model *m_sleeper;
+
+    TrackNode current;
+    glm::vec3 currentUp;
+
     float m_tension;
+    float m_duration;
 
 private:
     void updateTrack();

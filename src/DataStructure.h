@@ -34,4 +34,5 @@ struct ControlData
     TrainStatus trainStatus;
     TrackMode trackMode;
     float cardinalTension;
+    float trainTime;
 };

@@ -23,6 +23,7 @@ class Camera;
 class ControlPoint;
 class Track;
 class Model;
+class Train;
 
 class MainView
 {
@@ -80,6 +81,12 @@ private:
     int m_width, m_height;
 
     int mouseMode;
+
+    CameraStatus cameraStatus;
+
+    float trainTime;
+
+    Train *train;
 };
 
 #endif // MAINVIEW_H

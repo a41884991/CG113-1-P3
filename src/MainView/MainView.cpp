@@ -12,6 +12,7 @@ date: 10/30/2024
 #include "ControlPoint/ControlPoint.h"
 #include "Track/Track.h"
 #include "Model/Model.h"
+#include "Train/Train.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -35,12 +36,13 @@ MainView::MainView()
     viewMat = glm::mat4(1.0f);
     projMat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    test = new Model("./resource/wooden_plank/Wooden_plank.obj");
+    train = new Train("./resource/train/11709_train_v1_L3.obj");
 
     m_width = 800;
     m_height = 600;
 
     createIDTexture();
+    cameraStatus = CameraStatus::WORLD;
 
     mouseMode = -1;
 }
@@ -52,8 +54,16 @@ MainView::~MainView()
 
 void MainView::Render()
 {
+    auto trainModelMat = track->getTrainMatrix(train->getTime());
     // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
-    viewMat = camera->GetViewMatrix();
+    if (cameraStatus != CameraStatus::TRAIN)
+        viewMat = camera->GetViewMatrix();
+    else
+    {
+        train->moveCamera(track->getTrainPosition(), track->getTrainOrientation());
+        train->setCameraUp(track->getTrainUp());
+        viewMat = train->getCameraViewMat();
+    }
 
     DrawFloor();
 
@@ -75,6 +85,15 @@ void MainView::Render()
     modelProgram->SetMat4("view", viewMat);
     modelProgram->SetMat4("projection", projMat);
     track->RenderSleeper(modelProgram);
+
+    train->Render(modelProgram, trainModelMat);
+    // glm::mat4 model = glm::mat4(1.0f);
+
+    // model *= track->getTrainMatrix(trainTime);
+
+    // modelProgram->SetMat4("model", model);
+
+    // test->Render(modelProgram);
 }
 
 void MainView::SetViewPort(int width, int height)
@@ -148,8 +167,10 @@ void MainView::OnKey(int key, float deltaTime)
 void MainView::OnControlData(const ControlData &controlData)
 {
     camera->SetStatus(controlData.cameraStatus);
+    cameraStatus = controlData.cameraStatus;
     track->setTrackMode(controlData.trackMode);
     track->setNewTension(controlData.cardinalTension);
+    train->setTime(controlData.trainTime);
 }
 
 void MainView::HandleMouseEvent(int mode, double xPos, double yPos)

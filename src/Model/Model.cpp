@@ -4,7 +4,7 @@
 
 unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
-Model::Model(char *path)
+Model::Model(const char *path)
 {
     loadModel(path);
 }

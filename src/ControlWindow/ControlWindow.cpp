@@ -18,8 +18,11 @@ ControlWindow::ControlWindow(GLFWwindow *window)
     m_controlData.cameraStatus = CameraStatus::WORLD;
     m_controlData.trackMode = TrackMode::LINEAR;
     m_controlData.cardinalTension = 0.5f;
+    m_controlData.trainTime = 0.0f;
 
-    showDemoWindow = true;
+    // showDemoWindow = true;
+    trainSpeed = 0.005f;
+    isTrainTimeDisabled = false;
 }
 
 ControlWindow::~ControlWindow()
@@ -35,8 +38,8 @@ void ControlWindow::Render()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (this->showDemoWindow)
-        ImGui::ShowDemoWindow(&this->showDemoWindow);
+    // if (this->showDemoWindow)
+    //     ImGui::ShowDemoWindow(&this->showDemoWindow);
 
     ImGui::Begin("Control Window");
     {
@@ -46,12 +49,21 @@ void ControlWindow::Render()
         if (ImGui::Button(("Run"), ImVec2(buttonWidth, 0)))
         {
             m_controlData.trainStatus = TrainStatus::RUN;
+            isTrainTimeDisabled = true;
         }
         ImGui::SameLine();
         if (ImGui::Button(("Stop"), ImVec2(buttonWidth, 0)))
         {
             m_controlData.trainStatus = TrainStatus::STOP;
+            isTrainTimeDisabled = false;
         }
+        if (isTrainTimeDisabled)
+            ImGui::BeginDisabled();
+        ImGui::SliderFloat("Train Time", &m_controlData.trainTime, 0.0f, 1.0f);
+        if (isTrainTimeDisabled)
+            ImGui::EndDisabled();
+
+        ImGui::SliderFloat("Train Speed", &trainSpeed, 0.001f, 0.01f);
     }
     ImGui::Text("    ");
     {
@@ -102,4 +114,10 @@ void ControlWindow::Render()
     ImGui::End();
 
     ImGui::Render();
+
+    if (m_controlData.trainStatus == TrainStatus::RUN)
+        m_controlData.trainTime += trainSpeed;
+
+    if (m_controlData.trainTime > 1.0f)
+        m_controlData.trainTime -= 1.0f;
 }

@@ -32,6 +32,10 @@ public:
 
     const glm::vec3 &GetPosition() const { return position; }
 
+    void setPosition(glm::vec3 &position) { this->position = position; }
+    void setFront(glm::vec3 &front) { this->front = front; }
+    void setUp(const glm::vec3 &up) { this->up = up; }
+
 private:
     void UpdateCameraVectors();
 

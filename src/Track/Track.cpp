@@ -11,8 +11,7 @@ date: 11/19/2024
 #include "Model/Model.h"
 #include <iostream>
 
-#define NODES_PER_LINE 10
-
+#define NODES_PER_LINE 25
 Track::Track()
 {
     // Constructor
@@ -33,6 +32,8 @@ Track::Track()
     m_trackObject.model = glm::mat4(1.0f);
 
     m_sleeper = new Model("./resource/wooden_plank/Wooden_plank.obj");
+
+    m_duration = 1.0f;
 
     trackMode = TrackMode::LINEAR;
     updateTrack();
@@ -133,6 +134,48 @@ void Track::createNewPoint()
     glm::vec3 position = (m_controlPoints.back().getPosition() + m_controlPoints.front().getPosition()) / 2.0f;
 
     m_controlPoints.push_back(ControlPoint(position, m_controlPoints.size()));
+}
+
+const glm::mat4 Track::getTrainMatrix(float time)
+{
+    glm::mat4 model = glm::mat4(1.0f);
+
+    // 计算时间对应的节点索引和插值比例
+    float alpha = (time / m_duration) * (m_nodes.size() - 1);
+    int index = static_cast<int>(alpha);
+    float t = alpha - index;
+
+    // 获取当前节点和下一节点
+    auto node1 = m_nodes[index];
+    auto node2 = m_nodes[(index + 1) % m_nodes.size()];
+
+    // 位置插值
+    glm::vec3 position = (1.0f - t) * node1.position + t * node2.position;
+
+    // 方向插值（线性插值）
+    glm::vec3 orientation = glm::normalize((1.0f - t) * node1.orientation + t * node2.orientation);
+
+    // 构建正交基
+    glm::vec3 u = glm::normalize(node2.position - node1.position); // 轨道方向
+    glm::vec3 w = glm::normalize(glm::cross(u, orientation));      // 法线
+    glm::vec3 v = glm::normalize(glm::cross(w, u));                // 上方向
+
+    TrackNode newNode = {position + v * 0.4f - u * 0.1f, u};
+    current = newNode;
+    currentUp = v;
+
+    // 旋转矩阵
+    glm::mat4 rotation = glm::mat4(
+        glm::vec4(u, 0.0f),
+        glm::vec4(v, 0.0f),
+        glm::vec4(w, 0.0f),
+        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+    // 应用平移和旋转
+    model = glm::translate(model, position);
+    model *= rotation;
+
+    return model;
 }
 
 void Track::updateTrack()

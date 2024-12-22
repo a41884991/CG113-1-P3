@@ -21,7 +21,7 @@ class Model
 {
 public:
     /*  函数   */
-    Model(char *path);
+    Model(const char *path);
     void Render(ShaderProgram *program);
 
 private:

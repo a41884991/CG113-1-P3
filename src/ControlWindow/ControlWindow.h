@@ -25,4 +25,7 @@ public:
 private:
     bool showDemoWindow;
     ControlData m_controlData;
+    float trainSpeed;
+
+    bool isTrainTimeDisabled;
 };
