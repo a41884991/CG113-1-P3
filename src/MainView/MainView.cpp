@@ -11,6 +11,7 @@ date: 10/30/2024
 #include "Camera/Camera.h"
 #include "ControlPoint/ControlPoint.h"
 #include "Track/Track.h"
+#include "Model/Model.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -24,6 +25,7 @@ MainView::MainView()
     // Constructor
     program = new ShaderProgram("Shader/Train.vs", "Shader/Train.fs");
     idProgram = new ShaderProgram("Shader/ID.vs", "Shader/ID.fs");
+    modelProgram = new ShaderProgram("Shader/Model.vs", "Shader/Model.fs");
 
     camera = new Camera();
 
@@ -32,6 +34,8 @@ MainView::MainView()
 
     viewMat = glm::mat4(1.0f);
     projMat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    test = new Model("./resource/wooden_plank/Wooden_plank.obj");
 
     m_width = 800;
     m_height = 600;
@@ -66,6 +70,11 @@ void MainView::Render()
     idProgram->SetMat4("projection", projMat);
     track->RenderID(idProgram);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    modelProgram->Use();
+    modelProgram->SetMat4("view", viewMat);
+    modelProgram->SetMat4("projection", projMat);
+    track->RenderSleeper(modelProgram);
 }
 
 void MainView::SetViewPort(int width, int height)
@@ -146,6 +155,7 @@ void MainView::OnControlData(const ControlData &controlData)
 void MainView::HandleMouseEvent(int mode, double xPos, double yPos)
 {
     static bool firstMouse = true;
+    static bool isDragging = false;
 
     static double lastX = 0, lastY = 0;
 
@@ -254,7 +264,6 @@ void MainView::CreateFloor(float size, int nSquares)
 
 void MainView::createIDTexture()
 {
-    static bool initialized = false;
     glGenFramebuffers(1, &idTexture.FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, idTexture.FBO);
 
@@ -265,20 +274,6 @@ void MainView::createIDTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, idTexture.texture, 0);
-
-    if (initialized)
-    {
-        glDeleteRenderbuffers(1, &idTexture.depth);
-    }
-    else
-    {
-        initialized = true;
-    }
-
-    glGenRenderbuffers(1, &idTexture.depth);
-    glBindRenderbuffer(GL_RENDERBUFFER, idTexture.depth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, idTexture.depth);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -311,20 +306,20 @@ int MainView::getID(const int mouseX, const int mouseY)
 
 glm::vec3 MainView::getWorldPos(const int mouseX, const int mouseY)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, idTexture.FBO);
-
-    float depth = 0.0f;
     int windowX = mouseX;
     int windowY = m_height - mouseY;
-    glReadPixels(windowX, windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+
+    glm::vec3 nearPlane = glm::vec3(windowX, windowY, 0.0f);
+    glm::vec3 farPlane = glm::vec3(windowX, windowY, 1.0f);
 
     GLint _viewport[4];
     glGetIntegerv(GL_VIEWPORT, _viewport);
     glm::vec4 viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-    glm::vec3 windowPos(windowX, windowY, depth);
-    glm::vec3 wp = glm::unProject(windowPos, viewMat, projMat, viewport);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glm::vec3 nearPoint = glm::unProject(nearPlane, viewMat, projMat, viewport);
+    glm::vec3 farPoint = glm::unProject(farPlane, viewMat, projMat, viewport);
 
-    return wp;
+    glm::vec3 rayDirection = glm::normalize(farPoint - nearPoint);
+
+    return camera->GetPosition() + rayDirection * 2.0f;
 }

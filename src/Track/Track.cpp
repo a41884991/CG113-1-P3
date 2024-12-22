@@ -8,6 +8,7 @@ date: 11/19/2024
 #include "Track.h"
 #include "ControlPoint/ControlPoint.h"
 #include "ShaderProgram/ShaderProgram.h"
+#include "Model/Model.h"
 #include <iostream>
 
 #define NODES_PER_LINE 10
@@ -31,6 +32,8 @@ Track::Track()
 
     m_trackObject.model = glm::mat4(1.0f);
 
+    m_sleeper = new Model("./resource/wooden_plank/Wooden_plank.obj");
+
     trackMode = TrackMode::LINEAR;
     updateTrack();
 }
@@ -42,11 +45,6 @@ Track::~Track()
 
 void Track::Render(ShaderProgram *program)
 {
-    for (auto &point : m_controlPoints)
-    {
-        point.Render(program);
-    }
-
     program->SetVec3("ourColor", glm::vec3(1.0f, 1.0f, 1.0f));
     program->SetMat4("model", m_trackObject.model);
 
@@ -54,6 +52,11 @@ void Track::Render(ShaderProgram *program)
     glBindVertexArray(m_trackObject.VAO);
     glDrawArrays(GL_LINES, 0, (m_nodes.size() - 1) * 2);
     glBindVertexArray(0);
+
+    for (auto &point : m_controlPoints)
+    {
+        point.Render(program);
+    }
 }
 
 void Track::RenderID(ShaderProgram *program)
@@ -61,6 +64,32 @@ void Track::RenderID(ShaderProgram *program)
     for (auto &point : m_controlPoints)
     {
         point.RenderID(program);
+    }
+}
+
+void Track::RenderSleeper(ShaderProgram *program)
+{
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        if (trackMode != TrackMode::CUBIC_B_SPLINE && i % NODES_PER_LINE == 0)
+            continue;
+
+        auto node1 = m_nodes[i];
+        auto node2 = m_nodes[(i + 1) % m_nodes.size()];
+
+        glm::vec3 u = glm::normalize(node2.position - node1.position);
+        glm::vec3 w = glm::normalize(glm::cross(u, node1.orientation));
+        glm::vec3 v = glm::normalize(glm::cross(w, u));
+
+        glm::mat4 rotation = glm::mat4(glm::vec4(u, 0.0f), glm::vec4(v, 0.0f), glm::vec4(w, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, node1.position + v * 0.01f);
+        model *= rotation;
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+
+        program->SetMat4("model", model);
+        m_sleeper->Render(program);
     }
 }
 
@@ -141,8 +170,8 @@ void Track::createLinearTrack()
 
         auto p1_pos = startPoint.getPosition();
         auto p2_pos = endPoint.getPosition();
-        auto p1_rot = startPoint.getRotation();
-        auto p2_rot = endPoint.getRotation();
+        auto p1_ort = startPoint.getOrientation();
+        auto p2_ort = endPoint.getOrientation();
 
         for (int i = 0; i < NODES_PER_LINE; ++i)
         {
@@ -151,7 +180,7 @@ void Track::createLinearTrack()
             float t = i * PERCENT;
 
             currentNode.position = (1 - t) * p1_pos + t * p2_pos;
-            currentNode.rotation = (1 - t) * p1_rot + t * p2_rot;
+            currentNode.orientation = (1 - t) * p1_ort + t * p2_ort;
 
             m_nodes.push_back(currentNode);
         }
@@ -159,7 +188,7 @@ void Track::createLinearTrack()
         startPoint = point;
     }
 
-    m_nodes.push_back({endPoint.getPosition(), endPoint.getRotation()});
+    m_nodes.push_back({endPoint.getPosition(), endPoint.getOrientation()});
 }
 
 void Track::createBezierTrack()
@@ -173,10 +202,10 @@ void Track::createBezierTrack()
     {
         TrackNode p0 = {m_controlPoints[i].getPosition(), m_controlPoints[i].getRotation()};
         TrackNode p1 = {m_controlPoints[i + 1].getPosition(), m_controlPoints[i + 1].getRotation()};
-        TrackNode mid1 = {(p0.position + p1.position) / 2.0f, (p0.rotation + p1.rotation) / 2.0f};
+        TrackNode mid1 = {(p0.position + p1.position) / 2.0f, (p0.orientation + p1.orientation) / 2.0f};
 
-        TrackNode ctrl0 = {(p0.position + mid0.position) / 2.0f, (p0.rotation + mid0.rotation) / 2.0f};
-        TrackNode ctrl1 = {(p0.position + mid1.position) / 2.0f, (p0.rotation + mid1.rotation) / 2.0f};
+        TrackNode ctrl0 = {(p0.position + mid0.position) / 2.0f, (p0.orientation + mid0.orientation) / 2.0f};
+        TrackNode ctrl1 = {(p0.position + mid1.position) / 2.0f, (p0.orientation + mid1.orientation) / 2.0f};
 
         createPartBazier(mid0, ctrl0, ctrl1, mid1);
 
@@ -185,20 +214,20 @@ void Track::createBezierTrack()
 
     TrackNode p0 = {m_controlPoints.back().getPosition(), m_controlPoints.back().getRotation()};
     TrackNode p1 = {m_controlPoints[0].getPosition(), m_controlPoints[0].getRotation()};
-    TrackNode mid1 = {(p0.position + p1.position) / 2.0f, (p0.rotation + p1.rotation) / 2.0f};
+    TrackNode mid1 = {(p0.position + p1.position) / 2.0f, (p0.orientation + p1.orientation) / 2.0f};
 
-    TrackNode ctrl0 = {(p0.position + mid0.position) / 2.0f, (p0.rotation + mid0.rotation) / 2.0f};
-    TrackNode ctrl1 = {(p0.position + mid1.position) / 2.0f, (p0.rotation + mid1.rotation) / 2.0f};
+    TrackNode ctrl0 = {(p0.position + mid0.position) / 2.0f, (p0.orientation + mid0.orientation) / 2.0f};
+    TrackNode ctrl1 = {(p0.position + mid1.position) / 2.0f, (p0.orientation + mid1.orientation) / 2.0f};
 
     createPartBazier(mid0, ctrl0, ctrl1, mid1);
 
     mid0 = mid1;
     p0 = {m_controlPoints[0].getPosition(), m_controlPoints[0].getRotation()};
     p1 = {m_controlPoints[1].getPosition(), m_controlPoints[1].getRotation()};
-    mid1 = {(p0.position + p1.position) / 2.0f, (p0.rotation + p1.rotation) / 2.0f};
+    mid1 = {(p0.position + p1.position) / 2.0f, (p0.orientation + p1.orientation) / 2.0f};
 
-    ctrl0 = {(p0.position + mid0.position) / 2.0f, (p0.rotation + mid0.rotation) / 2.0f};
-    ctrl1 = {(p0.position + mid1.position) / 2.0f, (p0.rotation + mid1.rotation) / 2.0f};
+    ctrl0 = {(p0.position + mid0.position) / 2.0f, (p0.orientation + mid0.orientation) / 2.0f};
+    ctrl1 = {(p0.position + mid1.position) / 2.0f, (p0.orientation + mid1.orientation) / 2.0f};
 
     createPartBazier(mid0, ctrl0, ctrl1, mid1);
 
@@ -214,7 +243,7 @@ void Track::createBSplineTrack()
     controlNodes.reserve(m_controlPoints.size());
     for (auto &point : m_controlPoints)
     {
-        controlNodes.push_back({point.getPosition(), point.getRotation()});
+        controlNodes.push_back({point.getPosition(), point.getOrientation()});
     }
 
     for (int i = 0; i < controlNodes.size(); ++i)
@@ -239,7 +268,7 @@ void Track::createCarinalTrack()
     controlNodes.reserve(m_controlPoints.size());
     for (auto &point : m_controlPoints)
     {
-        controlNodes.push_back({point.getPosition(), point.getRotation()});
+        controlNodes.push_back({point.getPosition(), point.getOrientation()});
     }
 
     for (int i = 0; i < controlNodes.size(); ++i)
@@ -267,7 +296,7 @@ void Track::computeBSplineBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, Tra
         TrackNode currentNode;
 
         currentNode.position = ((-t_3 + 3 * t_2 - 3 * t + 1) * B0.position + (3 * t_3 - 6 * t_2 + 4) * B1.position + (-3 * t_3 + 3 * t_2 + 3 * t + 1) * B2.position + (t_3)*B3.position) / 6.0f;
-        currentNode.rotation = ((-t_3 + 3 * t_2 - 3 * t + 1) * B0.rotation + (3 * t_3 - 6 * t_2 + 4) * B1.rotation + (-3 * t_3 + 3 * t_2 + 3 * t + 1) * B2.rotation + (t_3)*B3.rotation) / 6.0f;
+        currentNode.orientation = ((-t_3 + 3 * t_2 - 3 * t + 1) * B0.orientation + (3 * t_3 - 6 * t_2 + 4) * B1.orientation + (-3 * t_3 + 3 * t_2 + 3 * t + 1) * B2.orientation + (t_3)*B3.orientation) / 6.0f;
 
         m_nodes.push_back(currentNode);
     }
@@ -291,7 +320,7 @@ void Track::computeCarinalBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, Tra
         TrackNode currentNode;
 
         currentNode.position = b0Constant * B0.position + b1Constant * B1.position + b2Constant * B2.position + b3Constant * B3.position;
-        currentNode.rotation = b0Constant * B0.rotation + b1Constant * B1.rotation + b2Constant * B2.rotation + b3Constant * B3.rotation;
+        currentNode.orientation = b0Constant * B0.orientation + b1Constant * B1.orientation + b2Constant * B2.orientation + b3Constant * B3.orientation;
 
         m_nodes.push_back(currentNode);
     }
@@ -338,7 +367,7 @@ void Track::createPartBazier(TrackNode &startNode, TrackNode &ctrl0, TrackNode &
         TrackNode currentNode;
 
         currentNode.position = (float)pow(u, 3) * startNode.position + 3 * (float)pow(u, 2) * t * ctrl0.position + 3 * u * (float)pow(t, 2) * ctrl1.position + (float)pow(t, 3) * endNode.position;
-        currentNode.rotation = (float)pow(u, 3) * startNode.rotation + 3 * (float)pow(u, 2) * t * ctrl0.rotation + 3 * u * (float)pow(t, 2) * ctrl1.rotation + (float)pow(t, 3) * endNode.rotation;
+        currentNode.orientation = (float)pow(u, 3) * startNode.orientation + 3 * (float)pow(u, 2) * t * ctrl0.orientation + 3 * u * (float)pow(t, 2) * ctrl1.orientation + (float)pow(t, 3) * endNode.orientation;
 
         m_nodes.push_back(currentNode);
     }

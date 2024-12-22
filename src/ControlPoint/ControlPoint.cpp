@@ -30,6 +30,7 @@ ControlPoint::ControlPoint(glm::vec3 position, int index)
     this->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
     this->index = index;
+    this->orientation = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 ControlPoint::~ControlPoint()
@@ -90,6 +91,7 @@ const glm::vec3 &ControlPoint::getPosition() const
 void ControlPoint::setRotation(const glm::vec3 &newRotation)
 {
     rotation = newRotation;
+    computeOrient();
 }
 
 const glm::vec3 &ControlPoint::getRotation() const
@@ -168,6 +170,17 @@ void ControlPoint::Initialize()
     glBindVertexArray(0);
 
     isInitalized = true;
+}
+
+void ControlPoint::computeOrient()
+{
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, this->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, this->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, this->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+
+    auto result = model * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    orientation = glm::vec3(result);
 }
 
 glm::mat4 ControlPoint::CreateModelMatrix()

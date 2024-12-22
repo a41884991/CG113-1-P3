@@ -9,6 +9,7 @@ set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 set(IMGUI_DIR ${INCLUDE_DIR}imgui/)
 set(SHADER_DIR ${SRC_DIR}Shader/)
 set(RESOURCE_DIR ${PROJECT_SOURCE_DIR}/resource/)
+set(DLL_DIR ${PROJECT_SOURCE_DIR}/dll/)
 
 set(OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release)
 
@@ -16,6 +17,7 @@ include_directories(${INCLUDE_DIR})
 include_directories(${INCLUDE_DIR}glm/)
 include_directories(${INCLUDE_DIR}glad/include/)
 include_directories(${INCLUDE_DIR}GLFW/)
+include_directories(${INCLUDE_DIR}assimp/)
 include_directories(${IMGUI_DIR})
 include_directories(${SRC_DIR})
 
@@ -35,6 +37,8 @@ add_executable(RollerCoasters
     ${SRC_DIR}Camera/Camera.cpp
     ${SRC_DIR}ControlPoint/ControlPoint.cpp
     ${SRC_DIR}Track/Track.cpp
+    ${SRC_DIR}Model/Mesh.cpp
+    ${SRC_DIR}Model/Model.cpp
     ${SRC_DIR}main.cpp
     ${INCLUDE_DIR}glad/src/glad.c)
 
@@ -58,7 +62,8 @@ add_library(ImGUI
 
 target_link_libraries(RollerCoasters
     ${LIB_DIR}glfw3.lib
-    ${LIB_DIR}OpenGL32.lib)
+    ${LIB_DIR}OpenGL32.lib
+    ${LIB_DIR}assimp-vc142-mt.lib)
 
 add_custom_command(
 
@@ -78,6 +83,9 @@ add_custom_command(
     ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:RollerCoasters>/resource
     COMMAND
     ${CMAKE_COMMAND} -E copy_directory ${RESOURCE_DIR} $<TARGET_FILE_DIR:RollerCoasters>/resource
+
+    COMMAND
+    ${CMAKE_COMMAND} -E copy_directory ${DLL_DIR} $<TARGET_FILE_DIR:RollerCoasters>
 )
 
 target_link_libraries(RollerCoasters ImGUI)

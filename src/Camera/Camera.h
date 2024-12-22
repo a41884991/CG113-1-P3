@@ -30,6 +30,8 @@ public:
 
     void SetStatus(CameraStatus status) { this->status = status; }
 
+    const glm::vec3 &GetPosition() const { return position; }
+
 private:
     void UpdateCameraVectors();
 

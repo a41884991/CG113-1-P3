@@ -18,6 +18,7 @@ Date: 11/19/2024
 
 class ControlPoint;
 class ShaderProgram;
+class Model;
 
 class Track
 {
@@ -27,6 +28,7 @@ public:
 
     void Render(ShaderProgram *program);
     void RenderID(ShaderProgram *program);
+    void RenderSleeper(ShaderProgram *program);
 
     void setTrackMode(const TrackMode &newTrackMode);
     void setNewTension(const float &tension);
@@ -40,7 +42,7 @@ private:
     struct TrackNode
     {
         glm::vec3 position;
-        glm::vec3 rotation;
+        glm::vec3 orientation;
     };
 
     struct TrackObject
@@ -54,6 +56,7 @@ private:
     std::vector<ControlPoint> m_controlPoints;
     TrackObject m_trackObject;
     TrackMode trackMode;
+    Model *m_sleeper;
     float m_tension;
 
 private:

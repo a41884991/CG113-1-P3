@@ -38,10 +38,13 @@ public:
     void setRotation(const glm::vec3 &newRotation);
     const glm::vec3 &getRotation() const;
 
+    const glm::vec3 &getOrientation() const { return orientation; }
+
 private:
     glm::mat4 CreateModelMatrix();
 
     void Initialize();
+    void computeOrient();
 
 private:
     int index;
@@ -52,6 +55,7 @@ private:
 
     glm::vec3 position;
     glm::vec3 rotation;
+    glm::vec3 orientation;
 };
 
 #endif // CONTROLPOINT_H

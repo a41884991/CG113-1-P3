@@ -22,6 +22,7 @@ class Material;
 class Camera;
 class ControlPoint;
 class Track;
+class Model;
 
 class MainView
 {
@@ -58,11 +59,11 @@ private:
     {
         GLuint texture;
         GLuint FBO;
-        GLuint depth;
     };
 
     ShaderProgram *program;
     ShaderProgram *idProgram;
+    ShaderProgram *modelProgram;
 
     Camera *camera;
 
@@ -73,6 +74,8 @@ private:
 
     Floor floor;
     IDTexture idTexture;
+
+    Model *test;
 
     int m_width, m_height;
 
