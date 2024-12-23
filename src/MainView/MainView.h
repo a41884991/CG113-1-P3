@@ -24,6 +24,8 @@ class ControlPoint;
 class Track;
 class Model;
 class Train;
+class DirectionalLight;
+class PointLight;
 
 class MainView
 {
@@ -43,7 +45,7 @@ public:
 private:
     void CreateFloor(float size = 8, int nSquares = 10);
     void createIDTexture();
-    void DrawFloor();
+    void DrawFloor(glm::vec3 viewPos);
     int getID(const int mouseX, const int mouseY);
     glm::vec3 getWorldPos(const int mouseX, const int mouseY);
 
@@ -87,6 +89,9 @@ private:
     float trainTime;
 
     Train *train;
+
+    DirectionalLight *dirLight;
+    PointLight *pointLight;
 };
 
 #endif // MAINVIEW_H

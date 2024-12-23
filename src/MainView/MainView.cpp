@@ -13,6 +13,9 @@ date: 10/30/2024
 #include "Track/Track.h"
 #include "Model/Model.h"
 #include "Train/Train.h"
+#include "Light/BasicLight.h"
+#include "Light/DirectionalLight.h"
+#include "Light/PointLight.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -44,6 +47,8 @@ MainView::MainView()
     createIDTexture();
     cameraStatus = CameraStatus::WORLD;
 
+    dirLight = new DirectionalLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f));
+    pointLight = new PointLight(glm::vec3(0.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f));
     mouseMode = -1;
 }
 
@@ -55,6 +60,7 @@ MainView::~MainView()
 void MainView::Render()
 {
     auto trainModelMat = track->getTrainMatrix(train->getTime());
+    glm::vec3 cameraPos = camera->GetPosition();
     // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
     if (cameraStatus != CameraStatus::TRAIN)
         viewMat = camera->GetViewMatrix();
@@ -62,16 +68,19 @@ void MainView::Render()
     {
         train->moveCamera(track->getTrainPosition(), track->getTrainOrientation());
         train->setCameraUp(track->getTrainUp());
+        cameraPos = track->getTrainPosition();
         viewMat = train->getCameraViewMat();
     }
 
-    DrawFloor();
+    DrawFloor(cameraPos);
 
     program->Use();
 
-    // program->SetMat4("model", model);
     program->SetMat4("view", viewMat);
     program->SetMat4("projection", projMat);
+    modelProgram->SetVec3("viewPos", cameraPos);
+    dirLight->setProgramValue(program, "directionLight");
+    pointLight->setProgramValue(program, "pointLight");
     track->Render(program);
 
     glBindFramebuffer(GL_FRAMEBUFFER, idTexture.FBO);
@@ -84,16 +93,12 @@ void MainView::Render()
     modelProgram->Use();
     modelProgram->SetMat4("view", viewMat);
     modelProgram->SetMat4("projection", projMat);
+    modelProgram->SetVec3("viewPos", cameraPos);
+    dirLight->setProgramValue(modelProgram, "directionLight");
+    pointLight->setProgramValue(modelProgram, "pointLight");
     track->RenderSleeper(modelProgram);
 
     train->Render(modelProgram, trainModelMat);
-    // glm::mat4 model = glm::mat4(1.0f);
-
-    // model *= track->getTrainMatrix(trainTime);
-
-    // modelProgram->SetMat4("model", model);
-
-    // test->Render(modelProgram);
 }
 
 void MainView::SetViewPort(int width, int height)
@@ -170,6 +175,7 @@ void MainView::OnControlData(const ControlData &controlData)
     cameraStatus = controlData.cameraStatus;
     track->setTrackMode(controlData.trackMode);
     track->setNewTension(controlData.cardinalTension);
+    track->addControlPointRotation(controlData.pointRoation);
     train->setTime(controlData.trainTime);
 }
 
@@ -198,7 +204,9 @@ void MainView::HandleMouseEvent(int mode, double xPos, double yPos)
         id = getID((int)xPos, (int)yPos);
         track->setSelectedPointIndex(id);
         worldPos = getWorldPos((int)xPos, (int)yPos);
-        track->setControlPointPosition(id, worldPos);
+        track->setControlPointPosition(worldPos);
+        if (id != -1)
+            pointLight->setPosition(worldPos);
         break;
     case 1: // move camera
         camera->ProcessMouseMovement(xOffset, yOffset);
@@ -299,13 +307,17 @@ void MainView::createIDTexture()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void MainView::DrawFloor()
+void MainView::DrawFloor(glm::vec3 viewPos)
 {
     floor.program->Use();
 
     floor.program->SetMat4("view", viewMat);
     floor.program->SetMat4("projection", projMat);
     floor.program->SetMat4("model", floor.modelMat);
+
+    floor.program->SetVec3("viewPos", viewPos);
+    dirLight->setProgramValue(floor.program, "directionLight");
+    pointLight->setProgramValue(floor.program, "pointLight");
 
     glBindVertexArray(floor.VAO);
     glDrawArrays(GL_TRIANGLES, 0, floor.size);

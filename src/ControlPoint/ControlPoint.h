@@ -40,6 +40,8 @@ public:
 
     const glm::vec3 &getOrientation() const { return orientation; }
 
+    void addRoation(const glm::vec3 &addRotation);
+
 private:
     glm::mat4 CreateModelMatrix();
 

@@ -28,6 +28,15 @@ enum class TrainStatus
     STOP,
 };
 
+enum class ControlPointRotation
+{
+    NONE,
+    X_PLUS,
+    X_MINUS,
+    Z_PLUS,
+    Z_MINUS,
+};
+
 struct ControlData
 {
     CameraStatus cameraStatus;
@@ -35,4 +44,5 @@ struct ControlData
     TrackMode trackMode;
     float cardinalTension;
     float trainTime;
+    ControlPointRotation pointRoation;
 };

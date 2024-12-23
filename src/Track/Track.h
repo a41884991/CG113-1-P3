@@ -35,7 +35,8 @@ public:
 
     void setSelectedPointIndex(const int &index);
 
-    void setControlPointPosition(const int &index, const glm::vec3 &position);
+    void setControlPointPosition(const glm::vec3 &position);
+    void addControlPointRotation(ControlPointRotation rotationType);
     void createNewPoint();
     const glm::mat4 getTrainMatrix(float time);
     const glm::vec3 &getTrainPosition() const { return current.position; }
@@ -67,6 +68,8 @@ private:
 
     float m_tension;
     float m_duration;
+
+    int selectedPointIndex;
 
 private:
     void updateTrack();

@@ -40,6 +40,9 @@ add_executable(RollerCoasters
     ${SRC_DIR}Model/Mesh.cpp
     ${SRC_DIR}Model/Model.cpp
     ${SRC_DIR}Train/Train.cpp
+    ${SRC_DIR}Light/BasicLight.cpp
+    ${SRC_DIR}Light/DirectionalLight.cpp
+    ${SRC_DIR}Light/PointLight.cpp
     ${SRC_DIR}main.cpp
     ${INCLUDE_DIR}glad/src/glad.c)
 

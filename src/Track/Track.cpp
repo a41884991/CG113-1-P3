@@ -34,6 +34,7 @@ Track::Track()
     m_sleeper = new Model("./resource/wooden_plank/Wooden_plank.obj");
 
     m_duration = 1.0f;
+    selectedPointIndex = -1;
 
     trackMode = TrackMode::LINEAR;
     updateTrack();
@@ -116,15 +117,46 @@ void Track::setNewTension(const float &tension)
 
 void Track::setSelectedPointIndex(const int &index)
 {
+    selectedPointIndex = index;
     m_controlPoints[0].setSelectedIndex(index);
 }
 
-void Track::setControlPointPosition(const int &index, const glm::vec3 &position)
+void Track::setControlPointPosition(const glm::vec3 &position)
 {
-    if (index == -1)
+    if (selectedPointIndex == -1)
         return;
 
-    m_controlPoints[index].setPosition(position);
+    m_controlPoints[selectedPointIndex].setPosition(position);
+
+    updateTrack();
+}
+
+void Track::addControlPointRotation(ControlPointRotation rotationType)
+{
+    if (selectedPointIndex == -1 || rotationType == ControlPointRotation::NONE)
+        return;
+
+    glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    float radian45 = glm::radians(45.0f);
+    switch (rotationType)
+    {
+    case ControlPointRotation::X_PLUS:
+        rotation.x = radian45;
+        break;
+    case ControlPointRotation::X_MINUS:
+        rotation.x = -radian45;
+        break;
+    case ControlPointRotation::Z_PLUS:
+        rotation.z = radian45;
+        break;
+    case ControlPointRotation::Z_MINUS:
+        rotation.z = -radian45;
+        break;
+
+    default:
+        break;
+    }
+    m_controlPoints[selectedPointIndex].addRoation(rotation);
 
     updateTrack();
 }
@@ -382,12 +414,22 @@ void Track::createTrackObject()
     {
         TrackNode endNode = m_nodes[i];
 
+        glm::vec3 u = glm::normalize(endNode.position - startNode.position);
+        glm::vec3 w = glm::normalize(glm::cross(u, startNode.orientation));
+        glm::vec3 v = glm::normalize(glm::cross(w, u));
+
         allVertices.push_back(startNode.position.x);
         allVertices.push_back(startNode.position.y);
         allVertices.push_back(startNode.position.z);
+        allVertices.push_back(v.x);
+        allVertices.push_back(v.y);
+        allVertices.push_back(v.z);
         allVertices.push_back(endNode.position.x);
         allVertices.push_back(endNode.position.y);
         allVertices.push_back(endNode.position.z);
+        allVertices.push_back(v.x);
+        allVertices.push_back(v.y);
+        allVertices.push_back(v.z);
 
         startNode = endNode;
     }
@@ -395,8 +437,10 @@ void Track::createTrackObject()
     glBindVertexArray(m_trackObject.VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_trackObject.VBO);
     glBufferData(GL_ARRAY_BUFFER, allVertices.size() * sizeof(float), allVertices.data(), GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 void Track::createPartBazier(TrackNode &startNode, TrackNode &ctrl0, TrackNode &ctrl1, TrackNode &endNode)

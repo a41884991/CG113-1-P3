@@ -110,6 +110,28 @@ void ControlWindow::Render()
         }
 
         ImGui::SliderFloat("Cardinal Tension", &m_controlData.cardinalTension, 0.0f, 1.0f);
+
+        m_controlData.pointRoation = ControlPointRotation::NONE;
+        float buttonWidth = (ImGui::GetContentRegionAvail().x - 20) / 2;
+        if (ImGui::Button(("X+"), ImVec2(buttonWidth, 0)))
+        {
+            m_controlData.pointRoation = ControlPointRotation::X_PLUS;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(("X-"), ImVec2(buttonWidth, 0)))
+        {
+            m_controlData.pointRoation = ControlPointRotation::X_MINUS;
+        }
+
+        if (ImGui::Button(("Z+"), ImVec2(buttonWidth, 0)))
+        {
+            m_controlData.pointRoation = ControlPointRotation::Z_PLUS;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(("Z-"), ImVec2(buttonWidth, 0)))
+        {
+            m_controlData.pointRoation = ControlPointRotation::X_MINUS;
+        }
     }
     ImGui::End();
 

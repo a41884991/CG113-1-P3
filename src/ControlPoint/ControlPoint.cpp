@@ -102,57 +102,57 @@ const glm::vec3 &ControlPoint::getRotation() const
 void ControlPoint::Initialize()
 {
     float vertices[] = {
-        -0.05f, -0.05f, -0.05f,
-        0.05f, -0.05f, -0.05f,
-        0.05f, 0.05f, -0.05f,
-        0.05f, 0.05f, -0.05f,
-        -0.05f, 0.05f, -0.05f,
-        -0.05f, -0.05f, -0.05f,
+        -0.05f, -0.05f, -0.05f, 0.0f, 0.0f, -1.0f,
+        0.05f, -0.05f, -0.05f, 0.0f, 0.0f, -1.0f,
+        0.05f, 0.05f, -0.05f, 0.0f, 0.0f, -1.0f,
+        0.05f, 0.05f, -0.05f, 0.0f, 0.0f, -1.0f,
+        -0.05f, 0.05f, -0.05f, 0.0f, 0.0f, -1.0f,
+        -0.05f, -0.05f, -0.05f, 0.0f, 0.0f, -1.0f,
 
-        -0.05f, -0.05f, 0.05f,
-        0.05f, -0.05f, 0.05f,
-        0.05f, 0.05f, 0.05f,
-        0.05f, 0.05f, 0.05f,
-        -0.05f, 0.05f, 0.05f,
-        -0.05f, -0.05f, 0.05f,
+        -0.05f, -0.05f, 0.05f, 0.0f, 0.0f, 1.0f,
+        0.05f, -0.05f, 0.05f, 0.0f, 0.0f, 1.0f,
+        0.05f, 0.05f, 0.05f, 0.0f, 0.0f, 1.0f,
+        0.05f, 0.05f, 0.05f, 0.0f, 0.0f, 1.0f,
+        -0.05f, 0.05f, 0.05f, 0.0f, 0.0f, 1.0f,
+        -0.05f, -0.05f, 0.05f, 0.0f, 0.0f, 1.0f,
 
-        -0.05f, 0.05f, 0.05f,
-        -0.05f, 0.05f, -0.05f,
-        -0.05f, -0.05f, -0.05f,
-        -0.05f, -0.05f, 0.05f,
-        -0.05f, -0.05f, 0.05f,
-        -0.05f, 0.05f, 0.05f,
+        -0.05f, 0.05f, 0.05f, -1.0f, 0.0f, 0.0f,
+        -0.05f, 0.05f, -0.05f, -1.0f, 0.0f, 0.0f,
+        -0.05f, -0.05f, -0.05f, -1.0f, 0.0f, 0.0f,
+        -0.05f, -0.05f, -0.05f, -1.0f, 0.0f, 0.0f,
+        -0.05f, -0.05f, 0.05f, -1.0f, 0.0f, 0.0f,
+        -0.05f, 0.05f, 0.05f, -1.0f, 0.0f, 0.0f,
 
-        0.05f, 0.05f, 0.05f,
-        0.05f, 0.05f, -0.05f,
-        0.05f, -0.05f, -0.05f,
-        0.05f, -0.05f, -0.05f,
-        0.05f, -0.05f, 0.05f,
-        0.05f, 0.05f, 0.05f,
+        0.05f, 0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
+        0.05f, 0.05f, -0.05f, 1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f, -0.05f, 1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f, -0.05f, 1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
+        0.05f, 0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
 
-        -0.05f, -0.05f, -0.05f,
-        0.05f, -0.05f, -0.05f,
-        0.05f, -0.05f, 0.05f,
-        0.05f, -0.05f, 0.05f,
-        -0.05f, -0.05f, 0.05f,
-        -0.05f, -0.05f, -0.05f,
+        -0.05f, -0.05f, -0.05f, 0.0f, -1.0f, 0.0f,
+        0.05f, -0.05f, -0.05f, 0.0f, -1.0f, 0.0f,
+        0.05f, -0.05f, 0.05f, 0.0f, -1.0f, 0.0f,
+        0.05f, -0.05f, 0.05f, 0.0f, -1.0f, 0.0f,
+        -0.05f, -0.05f, 0.05f, 0.0f, -1.0f, 0.0f,
+        -0.05f, -0.05f, -0.05f, 0.0f, -1.0f, 0.0f,
 
         // roof
-        -0.05f, 0.05f, -0.05f,
-        0.0f, 0.1f, 0.0f,
-        0.05f, 0.05f, -0.05f,
+        -0.05f, 0.05f, -0.05f, 0.0f, 0.707f, -0.707f,
+        0.0f, 0.1f, 0.0f, 0.0f, 0.707f, -0.707f,
+        0.05f, 0.05f, -0.05f, 0.0f, 0.707f, -0.707f,
 
-        0.05f, 0.05f, -0.05f,
-        0.0f, 0.1f, 0.0f,
-        0.05f, 0.05f, 0.05f,
+        0.05f, 0.05f, -0.05f, 0.707f, 0.707f, 0.0f,
+        0.0f, 0.1f, 0.0f, 0.707f, 0.707f, 0.0f,
+        0.05f, 0.05f, 0.05f, 0.707f, 0.707f, 0.0f,
 
-        0.05f, 0.05f, 0.05f,
-        0.0f, 0.1f, 0.0f,
-        -0.05f, 0.05f, 0.05f,
+        0.05f, 0.05f, 0.05f, 0.0f, 0.707f, 0.707f,
+        0.0f, 0.1f, 0.0f, 0.0f, 0.707f, 0.707f,
+        -0.05f, 0.05f, 0.05f, 0.0f, 0.707f, 0.707f,
 
-        -0.05f, 0.05f, 0.05f,
-        0.0f, 0.1f, 0.0f,
-        -0.05f, 0.05f, -0.05f};
+        -0.05f, 0.05f, 0.05f, -0.707f, 0.707f, 0.0f,
+        0.0f, 0.1f, 0.0f, -0.707f, 0.707f, 0.0f,
+        -0.05f, 0.05f, -0.05f, -0.707f, 0.707f, 0.0f};
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -160,10 +160,12 @@ void ControlPoint::Initialize()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
@@ -181,6 +183,12 @@ void ControlPoint::computeOrient()
 
     auto result = model * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
     orientation = glm::vec3(result);
+}
+
+void ControlPoint::addRoation(const glm::vec3 &addRotation)
+{
+    this->rotation += addRotation;
+    computeOrient();
 }
 
 glm::mat4 ControlPoint::CreateModelMatrix()
