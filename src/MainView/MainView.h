@@ -26,6 +26,7 @@ class Model;
 class Train;
 class DirectionalLight;
 class PointLight;
+class Water;
 
 class MainView
 {
@@ -33,7 +34,7 @@ public:
     MainView();
     ~MainView();
 
-    void Render();
+    void Render(float deltaTime);
 
     void SetViewPort(int width, int height);
     void OnMouse(GLFWwindow *window, int button, int action);
@@ -41,6 +42,8 @@ public:
     void OnKey(int key, float deltaTime);
     void OnControlData(const ControlData &controlData);
     void HandleMouseEvent(int mode, double xPos, double yPos);
+
+    Track *GetTrack() { return track; }
 
 private:
     void CreateFloor(float size = 8, int nSquares = 10);
@@ -67,6 +70,7 @@ private:
     ShaderProgram *program;
     ShaderProgram *idProgram;
     ShaderProgram *modelProgram;
+    ShaderProgram *waterProgram;
 
     Camera *camera;
 
@@ -89,6 +93,7 @@ private:
     float trainTime;
 
     Train *train;
+    Water *water;
 
     DirectionalLight *dirLight;
     PointLight *pointLight;

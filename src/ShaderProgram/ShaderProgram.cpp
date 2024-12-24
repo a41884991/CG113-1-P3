@@ -109,3 +109,15 @@ void ShaderProgram::SetVec3(const char *name, glm::vec3 vec) const
     GLuint uniformLocation = glGetUniformLocation(this->ID, name);
     glUniform3fv(uniformLocation, 1, glm::value_ptr(vec));
 }
+
+void ShaderProgram::SetVec4(const char *name, glm::vec4 vec) const
+{
+    GLuint uniformLocation = glGetUniformLocation(this->ID, name);
+    glUniform4fv(uniformLocation, 1, glm::value_ptr(vec));
+}
+
+void ShaderProgram::SetVec2(const char *name, glm::vec2 vec) const
+{
+    GLuint uniformLocation = glGetUniformLocation(this->ID, name);
+    glUniform2fv(uniformLocation, 1, glm::value_ptr(vec));
+}

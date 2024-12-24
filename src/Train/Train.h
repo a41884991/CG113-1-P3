@@ -28,10 +28,14 @@ public:
     void setTime(float time) { m_time = time; }
     const float &getTime() const { return m_time; }
 
+    void setLength(float length) { m_length = length; }
+    const float &getLength() const { return m_length; }
+
 private:
     Model *m_model;
     glm::mat4 m_modelMat;
     Camera *m_camera;
 
     float m_time = 0.0f;
+    float m_length = 0.0f;
 };

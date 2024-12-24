@@ -1,4 +1,5 @@
 #pragma once
+#include <glm/glm.hpp>
 
 enum class TrackMode
 {
@@ -45,4 +46,14 @@ struct ControlData
     float cardinalTension;
     float trainTime;
     ControlPointRotation pointRoation;
+    bool isParameterization;
+    float currentLength;
+};
+
+struct Wave
+{
+    glm::vec2 direction;
+    float amplitude;
+    float waveLength;
+    glm::vec4 color;
 };

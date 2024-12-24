@@ -12,6 +12,8 @@ date: 11/19/2024
 #include <iostream>
 
 #define NODES_PER_LINE 25
+#define SLEEPER_DISTANCE 0.2f
+#define TRACK_WIDTH 0.1f
 Track::Track()
 {
     // Constructor
@@ -36,6 +38,9 @@ Track::Track()
     m_duration = 1.0f;
     selectedPointIndex = -1;
 
+    trackLength = 0.0f;
+    isParam = false;
+
     trackMode = TrackMode::LINEAR;
     updateTrack();
 }
@@ -52,7 +57,7 @@ void Track::Render(ShaderProgram *program)
 
     glLineWidth(5.0f);
     glBindVertexArray(m_trackObject.VAO);
-    glDrawArrays(GL_LINES, 0, (m_nodes.size() - 1) * 2);
+    glDrawArrays(GL_LINES, 0, (m_nodes.size() - 1) * 2 * 2);
     glBindVertexArray(0);
 
     for (auto &point : m_controlPoints)
@@ -71,13 +76,13 @@ void Track::RenderID(ShaderProgram *program)
 
 void Track::RenderSleeper(ShaderProgram *program)
 {
-    for (int i = 0; i < m_nodes.size(); ++i)
-    {
-        if (trackMode != TrackMode::CUBIC_B_SPLINE && i % NODES_PER_LINE == 0)
-            continue;
+    float sleeperCount = static_cast<float>(trackLength / SLEEPER_DISTANCE);
 
-        auto node1 = m_nodes[i];
-        auto node2 = m_nodes[(i + 1) % m_nodes.size()];
+    for (int i = 0; i < sleeperCount; ++i)
+    {
+        auto index = searchPositionIndex(i * SLEEPER_DISTANCE);
+        auto node1 = m_nodes[index];
+        auto node2 = m_nodes[(index + 1) % m_nodes.size()];
 
         glm::vec3 u = glm::normalize(node2.position - node1.position);
         glm::vec3 w = glm::normalize(glm::cross(u, node1.orientation));
@@ -93,6 +98,28 @@ void Track::RenderSleeper(ShaderProgram *program)
         program->SetMat4("model", model);
         m_sleeper->Render(program);
     }
+    // for (int i = 0; i < m_nodes.size(); ++i)
+    // {
+    //     // if (trackMode != TrackMode::CUBIC_B_SPLINE && i % NODES_PER_LINE == 0)
+    //     //     continue;
+
+    //     auto node1 = m_nodes[i];
+    //     auto node2 = m_nodes[(i + 1) % m_nodes.size()];
+
+    //     glm::vec3 u = glm::normalize(node2.position - node1.position);
+    //     glm::vec3 w = glm::normalize(glm::cross(u, node1.orientation));
+    //     glm::vec3 v = glm::normalize(glm::cross(w, u));
+
+    //     glm::mat4 rotation = glm::mat4(glm::vec4(u, 0.0f), glm::vec4(v, 0.0f), glm::vec4(w, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+    //     glm::mat4 model = glm::mat4(1.0f);
+    //     model = glm::translate(model, node1.position + v * 0.01f);
+    //     model *= rotation;
+    //     model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+
+    //     program->SetMat4("model", model);
+    //     m_sleeper->Render(program);
+    // }
 }
 
 void Track::setTrackMode(const TrackMode &newTrackMode)
@@ -210,6 +237,44 @@ const glm::mat4 Track::getTrainMatrix(float time)
     return model;
 }
 
+const glm::mat4 Track::getTrainMatrixParam(float length)
+{
+    glm::mat4 model = glm::mat4(1.0f);
+
+    int index = searchPositionIndex(length);
+    float t = length - pointAtLength[index];
+
+    auto node1 = m_nodes[index];
+    auto node2 = m_nodes[(index + 1) % m_nodes.size()];
+    // 位置插值
+    glm::vec3 position = (1.0f - t) * node1.position + t * node2.position;
+
+    // 方向插值（线性插值）
+    glm::vec3 orientation = glm::normalize((1.0f - t) * node1.orientation + t * node2.orientation);
+
+    // 构建正交基
+    glm::vec3 u = glm::normalize(node2.position - node1.position); // 轨道方向
+    glm::vec3 w = glm::normalize(glm::cross(u, orientation));      // 法线
+    glm::vec3 v = glm::normalize(glm::cross(w, u));                // 上方向
+
+    TrackNode newNode = {position + v * 0.4f - u * 0.1f, u};
+    current = newNode;
+    currentUp = v;
+
+    // 旋转矩阵
+    glm::mat4 rotation = glm::mat4(
+        glm::vec4(u, 0.0f),
+        glm::vec4(v, 0.0f),
+        glm::vec4(w, 0.0f),
+        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+    // 应用平移和旋转
+    model = glm::translate(model, position);
+    model *= rotation;
+
+    return model;
+}
+
 void Track::updateTrack()
 {
     switch (trackMode)
@@ -233,37 +298,49 @@ void Track::createLinearTrack()
 {
     m_nodes.clear();
     m_nodes.reserve(m_controlPoints.size() * NODES_PER_LINE + 1);
+    pointAtLength.clear();
+    pointAtLength.reserve(m_controlPoints.size() * NODES_PER_LINE + 1);
 
-    ControlPoint startPoint = m_controlPoints.back();
-    ControlPoint endPoint;
+    trackLength = 0;
 
-    const float PERCENT = 1.0f / NODES_PER_LINE;
-
+    std::vector<TrackNode> controlNodes;
+    controlNodes.reserve(m_controlPoints.size());
     for (auto &point : m_controlPoints)
     {
-        endPoint = point;
+        controlNodes.push_back({point.getPosition(), point.getOrientation()});
+    }
+    const float PERCENT = 1.0f / NODES_PER_LINE;
 
-        auto p1_pos = startPoint.getPosition();
-        auto p2_pos = endPoint.getPosition();
-        auto p1_ort = startPoint.getOrientation();
-        auto p2_ort = endPoint.getOrientation();
+    for (int i = 0; i < controlNodes.size(); ++i)
+    {
+        TrackNode startPoint = controlNodes[i];
+        TrackNode endPoint = controlNodes[(i + 1) % controlNodes.size()];
 
-        for (int i = 0; i < NODES_PER_LINE; ++i)
+        for (int j = 0; j < NODES_PER_LINE; ++j)
         {
             TrackNode currentNode;
 
-            float t = i * PERCENT;
+            float t = j * PERCENT;
 
-            currentNode.position = (1 - t) * p1_pos + t * p2_pos;
-            currentNode.orientation = (1 - t) * p1_ort + t * p2_ort;
+            currentNode.position = (1 - t) * startPoint.position + t * endPoint.position;
+            currentNode.orientation = (1 - t) * startPoint.orientation + t * endPoint.orientation;
+
+            if (!m_nodes.empty())
+            {
+                trackLength += glm::length(currentNode.position - m_nodes.back().position);
+            }
+            else
+            {
+                trackLength = 0;
+            }
+            pointAtLength.push_back(trackLength);
 
             m_nodes.push_back(currentNode);
         }
-
-        startPoint = point;
     }
 
-    m_nodes.push_back({endPoint.getPosition(), endPoint.getOrientation()});
+    trackLength += glm::length(m_nodes.back().position - m_nodes.front().position);
+    m_nodes.push_back(m_nodes[0]);
 }
 
 void Track::createBezierTrack()
@@ -313,6 +390,9 @@ void Track::createBSplineTrack()
 {
     m_nodes.clear();
     m_nodes.reserve(m_controlPoints.size() * NODES_PER_LINE + 1);
+    pointAtLength.clear();
+    pointAtLength.reserve(m_controlPoints.size() * NODES_PER_LINE + 1);
+    trackLength = 0;
 
     std::vector<TrackNode> controlNodes;
     controlNodes.reserve(m_controlPoints.size());
@@ -323,14 +403,16 @@ void Track::createBSplineTrack()
 
     for (int i = 0; i < controlNodes.size(); ++i)
     {
-        TrackNode B0 = controlNodes[i];
-        TrackNode B1 = controlNodes[(i + 1) % controlNodes.size()];
-        TrackNode B2 = controlNodes[(i + 2) % controlNodes.size()];
-        TrackNode B3 = controlNodes[(i + 3) % controlNodes.size()];
+        TrackNode B0 = controlNodes[(i + controlNodes.size() - 1) % controlNodes.size()];
+        TrackNode B1 = controlNodes[i];
+        TrackNode B2 = controlNodes[(i + 1) % controlNodes.size()];
+        TrackNode B3 = controlNodes[(i + 2) % controlNodes.size()];
 
         computeBSplineBasis(B0, B1, B2, B3);
     }
 
+    trackLength += glm::length(m_nodes.back().position - m_nodes.front().position);
+    pointAtLength.push_back(trackLength);
     m_nodes.push_back(m_nodes[0]);
 }
 
@@ -338,6 +420,9 @@ void Track::createCarinalTrack()
 {
     m_nodes.clear();
     m_nodes.reserve(m_controlPoints.size() * NODES_PER_LINE + 1);
+    pointAtLength.clear();
+    pointAtLength.reserve(m_controlPoints.size() * NODES_PER_LINE + 1);
+    trackLength = 0;
 
     std::vector<TrackNode> controlNodes;
     controlNodes.reserve(m_controlPoints.size());
@@ -348,14 +433,16 @@ void Track::createCarinalTrack()
 
     for (int i = 0; i < controlNodes.size(); ++i)
     {
-        TrackNode B0 = controlNodes[i];
-        TrackNode B1 = controlNodes[(i + 1) % controlNodes.size()];
-        TrackNode B2 = controlNodes[(i + 2) % controlNodes.size()];
-        TrackNode B3 = controlNodes[(i + 3) % controlNodes.size()];
+        TrackNode B0 = controlNodes[(i + controlNodes.size() - 1) % controlNodes.size()];
+        TrackNode B1 = controlNodes[i];
+        TrackNode B2 = controlNodes[(i + 1) % controlNodes.size()];
+        TrackNode B3 = controlNodes[(i + 2) % controlNodes.size()];
 
         computeCarinalBasis(B0, B1, B2, B3);
     }
 
+    trackLength += glm::length(m_nodes.back().position - m_nodes.front().position);
+    pointAtLength.push_back(trackLength);
     m_nodes.push_back(m_nodes[0]);
 }
 
@@ -372,6 +459,16 @@ void Track::computeBSplineBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, Tra
 
         currentNode.position = ((-t_3 + 3 * t_2 - 3 * t + 1) * B0.position + (3 * t_3 - 6 * t_2 + 4) * B1.position + (-3 * t_3 + 3 * t_2 + 3 * t + 1) * B2.position + (t_3)*B3.position) / 6.0f;
         currentNode.orientation = ((-t_3 + 3 * t_2 - 3 * t + 1) * B0.orientation + (3 * t_3 - 6 * t_2 + 4) * B1.orientation + (-3 * t_3 + 3 * t_2 + 3 * t + 1) * B2.orientation + (t_3)*B3.orientation) / 6.0f;
+
+        if (!m_nodes.empty())
+        {
+            trackLength += glm::length(currentNode.position - m_nodes.back().position);
+        }
+        else
+        {
+            trackLength = 0;
+        }
+        pointAtLength.push_back(trackLength);
 
         m_nodes.push_back(currentNode);
     }
@@ -397,6 +494,15 @@ void Track::computeCarinalBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, Tra
         currentNode.position = b0Constant * B0.position + b1Constant * B1.position + b2Constant * B2.position + b3Constant * B3.position;
         currentNode.orientation = b0Constant * B0.orientation + b1Constant * B1.orientation + b2Constant * B2.orientation + b3Constant * B3.orientation;
 
+        if (!m_nodes.empty())
+        {
+            trackLength += glm::length(currentNode.position - m_nodes.back().position);
+        }
+        else
+        {
+            trackLength = 0;
+        }
+        pointAtLength.push_back(trackLength);
         m_nodes.push_back(currentNode);
     }
 }
@@ -418,15 +524,27 @@ void Track::createTrackObject()
         glm::vec3 w = glm::normalize(glm::cross(u, startNode.orientation));
         glm::vec3 v = glm::normalize(glm::cross(w, u));
 
-        allVertices.push_back(startNode.position.x);
-        allVertices.push_back(startNode.position.y);
-        allVertices.push_back(startNode.position.z);
+        allVertices.push_back(startNode.position.x + w.x * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(startNode.position.y + w.y * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(startNode.position.z + w.z * 0.5f * TRACK_WIDTH);
         allVertices.push_back(v.x);
         allVertices.push_back(v.y);
         allVertices.push_back(v.z);
-        allVertices.push_back(endNode.position.x);
-        allVertices.push_back(endNode.position.y);
-        allVertices.push_back(endNode.position.z);
+        allVertices.push_back(endNode.position.x + w.x * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(endNode.position.y + w.y * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(endNode.position.z + w.z * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(v.x);
+        allVertices.push_back(v.y);
+        allVertices.push_back(v.z);
+        allVertices.push_back(startNode.position.x - w.x * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(startNode.position.y - w.y * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(startNode.position.z - w.z * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(v.x);
+        allVertices.push_back(v.y);
+        allVertices.push_back(v.z);
+        allVertices.push_back(endNode.position.x - w.x * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(endNode.position.y - w.y * 0.5f * TRACK_WIDTH);
+        allVertices.push_back(endNode.position.z - w.z * 0.5f * TRACK_WIDTH);
         allVertices.push_back(v.x);
         allVertices.push_back(v.y);
         allVertices.push_back(v.z);
@@ -458,4 +576,18 @@ void Track::createPartBazier(TrackNode &startNode, TrackNode &ctrl0, TrackNode &
 
         m_nodes.push_back(currentNode);
     }
+}
+
+int Track::searchPositionIndex(float length)
+{
+
+    for (int i = 0; i < pointAtLength.size(); ++i)
+    {
+
+        if (pointAtLength[i] > length)
+        {
+            return i - 1;
+        }
+    }
+    return 0;
 }

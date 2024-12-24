@@ -19,10 +19,15 @@ ControlWindow::ControlWindow(GLFWwindow *window)
     m_controlData.trackMode = TrackMode::LINEAR;
     m_controlData.cardinalTension = 0.5f;
     m_controlData.trainTime = 0.0f;
+    m_controlData.isParameterization = false;
+    m_controlData.currentLength = 0.0f;
 
     // showDemoWindow = true;
     trainSpeed = 0.005f;
+    trainSpeedParam = 0.5f;
     isTrainTimeDisabled = false;
+
+    trackLength = 11.20f;
 }
 
 ControlWindow::~ControlWindow()
@@ -57,13 +62,30 @@ void ControlWindow::Render()
             m_controlData.trainStatus = TrainStatus::STOP;
             isTrainTimeDisabled = false;
         }
+
+        if (m_controlData.isParameterization)
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
+        if (ImGui::Button(("Parameterization"), ImVec2(2 * buttonWidth, 0)))
+        {
+            m_controlData.isParameterization = !m_controlData.isParameterization;
+            switchLengthTime();
+        }
+        if (m_controlData.isParameterization)
+            ImGui::PopStyleColor();
+
         if (isTrainTimeDisabled)
             ImGui::BeginDisabled();
-        ImGui::SliderFloat("Train Time", &m_controlData.trainTime, 0.0f, 1.0f);
+        if (!m_controlData.isParameterization)
+            ImGui::SliderFloat("Train Time", &m_controlData.trainTime, 0.0f, 1.0f);
+        else
+            ImGui::SliderFloat("Train Time", &m_controlData.currentLength, 0.0f, trackLength);
         if (isTrainTimeDisabled)
             ImGui::EndDisabled();
 
-        ImGui::SliderFloat("Train Speed", &trainSpeed, 0.001f, 0.01f);
+        if (!m_controlData.isParameterization)
+            ImGui::SliderFloat("Train Speed", &trainSpeed, 0.001f, 0.01f);
+        else
+            ImGui::SliderFloat("Train Speed", &trainSpeedParam, 0.05f, 1.0f);
     }
     ImGui::Text("    ");
     {
@@ -138,8 +160,22 @@ void ControlWindow::Render()
     ImGui::Render();
 
     if (m_controlData.trainStatus == TrainStatus::RUN)
+    {
         m_controlData.trainTime += trainSpeed;
+        m_controlData.currentLength += trainSpeedParam;
+    }
 
     if (m_controlData.trainTime > 1.0f)
         m_controlData.trainTime -= 1.0f;
+
+    if (m_controlData.currentLength > trackLength)
+        m_controlData.currentLength -= trackLength;
+}
+
+void ControlWindow::switchLengthTime()
+{
+    if (m_controlData.isParameterization)
+        m_controlData.currentLength = m_controlData.trainTime * trackLength;
+    else
+        m_controlData.trainTime = m_controlData.currentLength / trackLength;
 }

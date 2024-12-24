@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ControlWindow/ControlWindow.h"
 #include "MainView/MainView.h"
+#include "Track/Track.h"
 
 #include <iostream>
 
@@ -50,9 +51,10 @@ void MainWindow::Show()
 
         // render
         // ------
+        controlWindow->setTrackLength(view->GetTrack()->getTrackLength());
         controlWindow->Render();
 
-        view->Render();
+        view->Render(deltaTime);
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -82,6 +84,9 @@ void MainWindow::CreateView()
 {
     view = new MainView();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void MainWindow::BindCallBack()

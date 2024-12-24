@@ -35,13 +35,19 @@ public:
 
     void setSelectedPointIndex(const int &index);
 
+    const float getTrackLength() const { return trackLength; }
+
     void setControlPointPosition(const glm::vec3 &position);
     void addControlPointRotation(ControlPointRotation rotationType);
     void createNewPoint();
     const glm::mat4 getTrainMatrix(float time);
+    const glm::mat4 getTrainMatrixParam(float length);
     const glm::vec3 &getTrainPosition() const { return current.position; }
     const glm::vec3 &getTrainOrientation() const { return current.orientation; }
     const glm::vec3 &getTrainUp() const { return currentUp; }
+
+    void setIsParam(bool isParam) { this->isParam = isParam; }
+    const bool getIsParam() const { return isParam; }
 
 private:
     struct TrackNode
@@ -71,6 +77,12 @@ private:
 
     int selectedPointIndex;
 
+    float trackLength;
+
+    std::vector<float> pointAtLength;
+
+    bool isParam;
+
 private:
     void updateTrack();
     void createLinearTrack();
@@ -82,6 +94,8 @@ private:
     void computeBSplineBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, TrackNode &B3);
     void computeCarinalBasis(TrackNode &B0, TrackNode &B1, TrackNode &B2, TrackNode &B3);
     void createPartBazier(TrackNode &startNode, TrackNode &ctrl0, TrackNode &ctrl1, TrackNode &endNode);
+
+    int searchPositionIndex(float length);
 };
 
 #endif // TRACK_H

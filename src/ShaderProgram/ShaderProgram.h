@@ -14,21 +14,23 @@ Date: 10/30/2024
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class ShaderProgram {
+class ShaderProgram
+{
 public:
-    ShaderProgram(const char* vertexShaderPath, const char* fragmentShaderPath);
+    ShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath);
     ~ShaderProgram();
 
     void Use();
 
-    void SetMat4(const char* name, glm::mat4& matrix) const; 
-    void SetInt(const char* name, int value) const;
-    void SetFloat(const char* name, float value) const;
-    void SetVec3(const char* name, glm::vec3 vec) const;
+    void SetMat4(const char *name, glm::mat4 &matrix) const;
+    void SetInt(const char *name, int value) const;
+    void SetFloat(const char *name, float value) const;
+    void SetVec3(const char *name, glm::vec3 vec) const;
+    void SetVec4(const char *name, glm::vec4 vec) const;
+    void SetVec2(const char *name, glm::vec2 vec) const;
 
 private:
     GLuint ID;
-
 };
 
 #endif // SHADERPROGRAM_H

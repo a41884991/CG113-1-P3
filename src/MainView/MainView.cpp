@@ -16,6 +16,7 @@ date: 10/30/2024
 #include "Light/BasicLight.h"
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
+#include "Water/Water.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -30,7 +31,7 @@ MainView::MainView()
     program = new ShaderProgram("Shader/Train.vs", "Shader/Train.fs");
     idProgram = new ShaderProgram("Shader/ID.vs", "Shader/ID.fs");
     modelProgram = new ShaderProgram("Shader/Model.vs", "Shader/Model.fs");
-
+    waterProgram = new ShaderProgram("Shader/Water.vs", "Shader/Water.fs");
     camera = new Camera();
 
     track = new Track();
@@ -46,6 +47,7 @@ MainView::MainView()
 
     createIDTexture();
     cameraStatus = CameraStatus::WORLD;
+    water = new Water(10, 10);
 
     dirLight = new DirectionalLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f));
     pointLight = new PointLight(glm::vec3(0.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f));
@@ -57,9 +59,9 @@ MainView::~MainView()
     // Destructor
 }
 
-void MainView::Render()
+void MainView::Render(float deltaTime)
 {
-    auto trainModelMat = track->getTrainMatrix(train->getTime());
+    auto trainModelMat = track->getIsParam() ? track->getTrainMatrixParam(train->getLength()) : track->getTrainMatrix(train->getTime());
     glm::vec3 cameraPos = camera->GetPosition();
     // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
     if (cameraStatus != CameraStatus::TRAIN)
@@ -99,6 +101,15 @@ void MainView::Render()
     track->RenderSleeper(modelProgram);
 
     train->Render(modelProgram, trainModelMat);
+
+    water->update(deltaTime);
+    waterProgram->Use();
+    waterProgram->SetMat4("view", viewMat);
+    waterProgram->SetMat4("projection", projMat);
+    waterProgram->SetVec3("viewPos", cameraPos);
+    dirLight->setProgramValue(waterProgram, "directionLight");
+    pointLight->setProgramValue(waterProgram, "pointLight");
+    water->render(waterProgram);
 }
 
 void MainView::SetViewPort(int width, int height)
@@ -176,7 +187,9 @@ void MainView::OnControlData(const ControlData &controlData)
     track->setTrackMode(controlData.trackMode);
     track->setNewTension(controlData.cardinalTension);
     track->addControlPointRotation(controlData.pointRoation);
+    train->setLength(controlData.currentLength);
     train->setTime(controlData.trainTime);
+    track->setIsParam(controlData.isParameterization);
 }
 
 void MainView::HandleMouseEvent(int mode, double xPos, double yPos)

@@ -22,10 +22,17 @@ public:
 
     const ControlData &GetControlData() const { return m_controlData; };
 
+    void setTrackLength(float length) { trackLength = length; }
+
 private:
-    bool showDemoWindow;
+    void switchLengthTime();
+
+private:
+    // bool showDemoWindow;
     ControlData m_controlData;
     float trainSpeed;
+    float trainSpeedParam;
+    float trackLength;
 
     bool isTrainTimeDisabled;
 };
